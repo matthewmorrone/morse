@@ -1,0 +1,446 @@
+<html>
+<head>
+<title>Morse Code</title>
+<script src='jquery.js'></script>
+<script src='jquery.ui.js'></script>
+<style>
+body
+{
+	width: 100%;
+	height: 100%;
+	font-family: arial;
+}
+nav, article
+{
+	width: 50%;
+	margin: auto;
+}
+nav span
+{
+	border: 1px solid gray;
+	color: lightgray;
+	text-align: center;
+	display: inline-block;
+	width: 200px;
+	
+}
+nav span.selected
+{
+	color: orange;
+	border: 1px solid green;
+}
+article
+{
+	display: none;
+}
+table, th, td
+{
+}
+table, textarea
+{
+	font-size: 200%;
+	float: left;
+}
+th, td
+{
+	min-height: 75px;
+	max-height: 75px;
+	min-width: 75px;
+	max-width: 75px;
+	border: 1px solid black;
+	border-collapse: collapse;
+
+}
+textarea
+{
+	text-transform: uppercase;
+}
+#all
+{
+	display: none;
+}
+#tables
+{
+	position: absolute;
+	top: 100px;
+	left: 100px;
+}
+#game, #write
+{
+	position: absolute;
+	top: 200px;
+	left: 200px;
+}
+#flashcard, #guess
+{
+	font-size: 200%;
+	border: 1px solid blue;
+	text-align: center;
+	margin: 10px;
+	padding: 10px;
+}
+.accepts
+{
+	position: absolute;
+	top: 100px;
+	right: 100px;
+	z-index: -1;
+}
+.accept
+{
+	width: 50px;
+	height: 100px;
+	border: 1px solid green;
+}
+</style>
+<script>
+String.prototype.trim=function()	{return this.replace(/^\s+|\s+$/g, '');};
+String.prototype.ltrim=function()	{return this.replace(/^\s+/,'');};
+String.prototype.rtrim=function()	{return this.replace(/\s+$/,'');};
+String.prototype.fulltrim=function(){return this.replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace(/\s+/g,' ');};
+
+(function($)
+{
+	$.fn.shuffleRows = function()
+	{
+		return this.each(function()
+		{
+			var main = $(/table/i.test(this.tagName) ? this.tBodies[0] : this)
+			var firstElem = [], counter=0
+			main.children().each(function() {firstElem.push(this.firstChild)})
+			main.shuffle()
+			main.children().each(function() {this.insertBefore(firstElem[counter++], this.firstChild)})
+		})
+	}
+	$.fn.shuffle = function() 
+	{
+		return this.each(function()
+		{
+			var items = $(this).children()
+			return (items.length) ? $(this).html($.shuffle(items)) : this
+		})
+	}
+
+	$.shuffle = function(arr) 
+	{
+		for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x)
+		return arr
+	}
+})
+(jQuery)
+
+$(function()
+{
+	$("th, td").draggable()
+	$(".accept").droppable(
+	{
+		drop: function(event, ui) 
+		{
+			$(this).css("background-color", "rgba(0, 255, 0, .5)")
+			// $(this).append($(ui.draggable).clone())
+			// $(".accepts").find("audio").each(function()
+			// {
+			// 	$(this)[0].play()
+			// })
+		},
+		out: function(event, ui) {$(this).css("background-color", "rgba(255, 255, 255, 1)")}
+	})
+
+	$("th, td").each(function()
+	{
+		$(this).data({'originalLeft': $(this).css('left'), 'originalTop': $(this).css('top')})
+	})
+
+	$("#revert").click(function() 
+	{
+		$("th, td").each(function()
+		{
+			$(this).css({'left': $(this).data('originalLeft'), 'top': $(this).data('originalTop')})
+		})
+	})
+	// $("table tbody").sortable({helper: function(e, tr)
+	// {
+	// 	var originals = tr.children()
+	// 	var helper = tr.clone()
+	// 	helper.children().each(function(index){$(this).width(originals.eq(index).width())})
+	// 	return helper
+	// }})
+ 	$("table tbody, div").disableSelection()
+ 	$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).hide()}})
+ 	$("#showall").click(function()
+ 	{
+ 		if ($(this).is(":checked")) {$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).show()}})}
+ 		else {$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).hide()}})}
+
+ 	})
+ 	var encodex = "{"
+ 	var decodex = "{"
+ 	$("#all tr").each(function()
+ 	{
+ 		encodex += "\""+$(this).find("th").html().trim()+"\": \""+$(this).find("td").html().trim()+"\","
+ 		decodex += "\""+$(this).find("td").html().trim()+"\": \""+$(this).find("th").html().trim()+"\","
+ 	})
+ 	encodex = encodex.substring(0, encodex.length-1)
+ 	decodex = decodex.substring(0, decodex.length-1)
+ 	encodex += "}"
+ 	decodex += "}"
+	encodex = $.parseJSON(encodex)
+	decodex = $.parseJSON(decodex)
+ 	$("#t1").keyup(function()
+ 	{
+ 		var str = $(this).val().split('')
+ 		var result = ""
+ 		str.map(function(a, b)
+ 		{
+ 			if (a == " ") {result+=" "; return}
+ 			a = a.toUpperCase()
+ 			result += encodex[a]+" "
+ 		})
+ 		$("#t2").val(result)
+ 	})
+ 	$("#t2").keyup(function(e)
+ 	{
+ 		if (e.which == 32 || e.which == 13)
+ 		{
+			var str = $(this).val().split(/\s/)
+	 		var result = ""
+	 		str.map(function(a, b)
+	 		{
+	 			if (b == str.length-1) {return}
+	 			if (typeof decodex[a] == "undefined") {result += "!"; return}
+	 			result += decodex[a]
+	 		})
+	 		$("#t1").val(result)
+ 		}
+ 	})
+ 	var i = 0
+ 	$("#flashcard").click(function()
+ 	{
+	  	var flashcardwidth = $("#flashcard").width()
+ 		var flashcardheight = $("#flashcard").height()
+ 		$(this).html($("#all").find("th").eq(i).html())
+ 		i++
+ 		$(this).width(flashcardwidth).height(flashcardheight)
+ 		$("#flashcard").width(flashcardwidth).height(flashcardheight)
+ 		if (i >= $("#all").find("th").length) {i = 0}
+ 		$("#guess").val("").css("background-color", "")
+ 	})
+ 	$("#guess").keyup(function(e)
+ 	{
+ 		var guess = $(this).val().trim()
+ 		var check = decodex[guess].trim()
+ 		var a = $("#flashcard").html().trim()
+ 		var b = encodex[a].trim()
+
+ 		if (guess.length == b.length)
+ 		{
+	 		if (check == a) {$(this).css('background-color', 'green') }
+	 		else {$(this).css('background-color', 'red') }
+	 	}
+	 	if (e.which == 13)
+	 	{
+	 		$("#flashcard").click()
+	 	}
+ 	})
+ 	$("nav span").click(function()
+ 	{
+ 		$(".selected").removeClass("selected")
+ 		$(this).addClass("selected")
+ 		$("article").hide()
+ 		$("#"+$(this).attr('page')).show()
+ 	})
+ 	$("span[page='1']").click()
+
+	$("a.sound").click(function(e) {$(this).next('audio').get(0).play()})
+	$("a.sound").parents("tr").click(function(e) {$(this).find('audio').get(0).play()})
+
+	$("#all").shuffleRows()
+})
+</script>
+</head>
+<body>
+
+<nav>
+<span page='1'>Chart</span>
+<span page='2'>Write</span>
+<span page='3'>Learn</span>
+</nav>
+
+
+
+<article id='1'>
+<input type='checkbox' id='showall' /><label for='showall'>Show All</label>
+<button id="revert">Revert</button>
+
+<div id='tables'>
+<table>
+<tr><th>T</th><td><a class='sound'>-</a><audio src="ogg/T_morse_code.ogg"></audio></td></tr>
+<tr><th>E</th><td><a class='sound'>.</a><audio src="ogg/E_morse_code.ogg"></audio></td></tr>
+</table>
+<table>
+<tr><th>M</th><td><a class='sound'>--</a><audio src="ogg/M_morse_code.ogg"></audio></td></tr>
+<tr><th>N</th><td><a class='sound'>-.</a><audio src="ogg/N_morse_code.ogg"></audio></td></tr>
+<tr><th>A</th><td><a class='sound'>.-</a><audio src="ogg/A_morse_code.ogg"></audio></td></tr>
+<tr><th>I</th><td><a class='sound'>..</a><audio src="ogg/I_morse_code.ogg"></audio></td></tr>
+</table>
+<table>
+<tr><th>O</th><td><a class='sound'>---</a><audio src="ogg/O_morse_code.ogg"></audio></td></tr>
+<tr><th>G</th><td><a class='sound'>--.</a><audio src="ogg/G_morse_code.ogg"></audio></td></tr>
+<tr><th>K</th><td><a class='sound'>-.-</a><audio src="ogg/K_morse_code.ogg"></audio></td></tr>
+<tr><th>D</th><td><a class='sound'>-..</a><audio src="ogg/D_morse_code.ogg"></audio></td></tr>
+<tr><th>W</th><td><a class='sound'>.--</a><audio src="ogg/W_morse_code.ogg"></audio></td></tr>
+<tr><th>R</th><td><a class='sound'>.-.</a><audio src="ogg/R_morse_code.ogg"></audio></td></tr>
+<tr><th>U</th><td><a class='sound'>..-</a><audio src="ogg/U_morse_code.ogg"></audio></td></tr>
+<tr><th>S</th><td><a class='sound'>...</a><audio src="ogg/S_morse_code.ogg"></audio></td></tr>
+</table>
+<table>
+<tr><th> </th><td>----</td></tr>
+<tr><th> </th><td>---.</td></tr>
+<tr><th>Q</th><td><a class='sound'>--.-</a><audio src="ogg/Q_morse_code.ogg"></audio></td></tr>
+<tr><th>Z</th><td><a class='sound'>--..</a><audio src="ogg/Z_morse_code.ogg"></audio></td></tr>
+<tr><th>Y</th><td><a class='sound'>-.--</a><audio src="ogg/Y_morse_code.ogg"></audio></td></tr>
+<tr><th>C</th><td><a class='sound'>-.-.</a><audio src="ogg/C_morse_code.ogg"></audio></td></tr>
+<tr><th>X</th><td><a class='sound'>-..-</a><audio src="ogg/X_morse_code.ogg"></audio></td></tr>
+<tr><th>B</th><td><a class='sound'>-...</a><audio src="ogg/B_morse_code.ogg"></audio></td></tr>
+<tr><th>J</th><td><a class='sound'>.---</a><audio src="ogg/J_morse_code.ogg"></audio></td></tr>
+<tr><th>P</th><td><a class='sound'>.--.</a><audio src="ogg/P_morse_code.ogg"></audio></td></tr>
+<tr><th> </th><td>.-.-</td></tr>
+<tr><th>L</th><td><a class='sound'>.-..</a><audio src="ogg/L_morse_code.ogg"></audio></td></tr>
+<tr><th> </th><td>..--</td></tr>
+<tr><th>F</th><td><a class='sound'>..-.</a><audio src="ogg/F_morse_code.ogg"></audio></td></tr>
+<tr><th>V</th><td><a class='sound'>...-</a><audio src="ogg/V_morse_code.ogg"></audio></td></tr>
+<tr><th>H</th><td><a class='sound'>....</a><audio src="ogg/H_morse_code.ogg"></audio></td></tr>
+</table>
+<table>
+<tr><th>0</th><td><a class='sound'>-----</a><audio src="ogg/0_morse_code.ogg"></audio></td></tr>
+<tr><th>9</th><td><a class='sound'>----.</a><audio src="ogg/9_morse_code.ogg"></audio></td></tr>
+<tr><th> </th><td>---.-</td></tr>
+<tr><th>8</th><td><a class='sound'>---..</a><audio src="ogg/8_morse_code.ogg"></audio></td></tr>
+<tr><th> </th><td>--.--</td></tr>
+<tr><th> </th><td>--.-.</td></tr>
+<tr><th> </th><td>--..-</td></tr>
+<tr><th>7</th><td><a class='sound'>--...</a><audio src="ogg/7_morse_code.ogg"></audio></td></tr>
+<tr><th> </th><td>-.---</td></tr>
+<tr><th> </th><td>-.--.</td></tr>
+<tr><th> </th><td>-.-.-</td></tr>
+<tr><th> </th><td>-.-..</td></tr>
+<tr><th> </th><td>-..--</td></tr>
+<tr><th> </th><td>-..-.</td></tr>
+<tr><th> </th><td>-...-</td></tr>
+<tr><th>6</th><td><a class='sound'>-....</a><audio src="ogg/6_morse_code.ogg"></audio></td></tr>
+<tr><th>1</th><td><a class='sound'>.----</a><audio src="ogg/1_morse_code.ogg"></audio></td></tr>
+<tr><th> </th><td>.---.</td></tr>
+<tr><th> </th><td>.--.-</td></tr>
+<tr><th> </th><td>.--..</td></tr>
+<tr><th> </th><td>.-.--</td></tr>
+<tr><th> </th><td>.-.-.</td></tr>
+<tr><th> </th><td>.-..-</td></tr>
+<tr><th> </th><td>.-...</td></tr>
+<tr><th>2</th><td><a class='sound'>..---</a><audio src="ogg/2_morse_code.ogg"></audio></td></tr>
+<tr><th> </th><td>..--.</td></tr>
+<tr><th> </th><td>..-.-</td></tr>
+<tr><th> </th><td>..-..</td></tr>
+<tr><th>3</th><td><a class='sound'>...--</a><audio src="ogg/3_morse_code.ogg"></audio></td></tr>
+<tr><th> </th><td>...-.</td></tr>
+<tr><th>4</th><td><a class='sound'>....-</a><audio src="ogg/4_morse_code.ogg"></audio></td></tr>
+<tr><th>5</th><td><a class='sound'>.....</a><audio src="ogg/5_morse_code.ogg"></audio></td></tr>
+</table>
+</div>
+<div class='accepts'>
+	<div class='accept'></div>
+	<div class='accept'></div>
+	<div class='accept'></div>
+	<div class='accept'></div>
+	<div class='accept'></div>
+</div>
+</article>
+
+<article id='2'>
+	<div id='write'>
+		<div><textarea id='t1' placeholder='Plain text'></textarea></div>
+		<div><textarea id='t2' placeholder='Morse code'></textarea></div>
+	</div>
+</article>
+
+<article id='3'>
+<div id='game'>
+	<div id='flashcard'>Start</div>
+	<input type='text' id='guess'>
+</div>
+</article>
+
+
+
+
+
+
+<table id='all'>
+<tr><th>T</th><td>-</td></tr>
+<tr><th>E</th><td>.</td></tr>
+<tr><th>M</th><td>--</td></tr>
+<tr><th>N</th><td>-.</td></tr>
+<tr><th>A</th><td>.-</td></tr>
+<tr><th>I</th><td>..</td></tr>
+<tr><th>O</th><td>---</td></tr>
+<tr><th>G</th><td>--.</td></tr>
+<tr><th>K</th><td>-.-</td></tr>
+<tr><th>D</th><td>-..</td></tr>
+<tr><th>W</th><td>.--</td></tr>
+<tr><th>R</th><td>.-.</td></tr>
+<tr><th>U</th><td>..-</td></tr>
+<tr><th>S</th><td>...</td></tr>
+<tr><th> </th><td>----</td></tr>
+<tr><th> </th><td>---.</td></tr>
+<tr><th>Q</th><td>--.-</td></tr>
+<tr><th>Z</th><td>--..</td></tr>
+<tr><th>Y</th><td>-.--</td></tr>
+<tr><th>C</th><td>-.-.</td></tr>
+<tr><th>X</th><td>-..-</td></tr>
+<tr><th>B</th><td>-...</td></tr>
+<tr><th>J</th><td>.---</td></tr>
+<tr><th>P</th><td>.--.</td></tr>
+<tr><th> </th><td>.-.-</td></tr>
+<tr><th>L</th><td>.-..</td></tr>
+<tr><th> </th><td>..--</td></tr>
+<tr><th>F</th><td>..-.</td></tr>
+<tr><th>V</th><td>...-</td></tr>
+<tr><th>H</th><td>....</td></tr>
+<tr><th>0</th><td>-----</td></tr>
+<tr><th>9</th><td>----.</td></tr>
+<tr><th> </th><td>---.-</td></tr>
+<tr><th>8</th><td>---..</td></tr>
+<tr><th> </th><td>--.--</td></tr>
+<tr><th> </th><td>--.-.</td></tr>
+<tr><th> </th><td>--..-</td></tr>
+<tr><th>7</th><td>--...</td></tr>
+<tr><th> </th><td>-.---</td></tr>
+<tr><th> </th><td>-.--.</td></tr>
+<tr><th> </th><td>-.-.-</td></tr>
+<tr><th> </th><td>-.-..</td></tr>
+<tr><th> </th><td>-..--</td></tr>
+<tr><th> </th><td>-..-.</td></tr>
+<tr><th> </th><td>-...-</td></tr>
+<tr><th>6</th><td>-....</td></tr>
+<tr><th>1</th><td>.----</td></tr>
+<tr><th> </th><td>.---.</td></tr>
+<tr><th> </th><td>.--.-</td></tr>
+<tr><th> </th><td>.--..</td></tr>
+<tr><th> </th><td>.-.--</td></tr>
+<tr><th> </th><td>.-.-.</td></tr>
+<tr><th> </th><td>.-..-</td></tr>
+<tr><th> </th><td>.-...</td></tr>
+<tr><th>2</th><td>..---</td></tr>
+<tr><th> </th><td>..--.</td></tr>
+<tr><th> </th><td>..-.-</td></tr>
+<tr><th> </th><td>..-..</td></tr>
+<tr><th>3</th><td>...--</td></tr>
+<tr><th> </th><td>...-.</td></tr>
+<tr><th>4</th><td>....-</td></tr>
+<tr><th>5</th><td>.....</td></tr>
+</table>
+
+
+
+
+</body>
+</html>
