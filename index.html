@@ -1,8 +1,10 @@
 <html>
 <head>
 <title>Morse Code</title>
-<script src='jquery.js'></script>
-<script src='jquery.ui.js'></script>
+<link rel="shortcut icon" type="image/x-icon" href="/psi.ico" />
+<link rel="stylesheet" type="text/css" href="/jquery.ui.css" />
+<script src="/jquery.js"></script>
+<script src="/jquery.ui.js"></script>
 <style>
 body
 {
@@ -12,19 +14,18 @@ body
 }
 nav, article
 {
-	width: 50%;
+	width: 70%;
 	margin: auto;
 }
-nav span
+nav div
 {
 	border: 1px solid gray;
 	color: lightgray;
 	text-align: center;
 	display: inline-block;
 	width: 200px;
-	
 }
-nav span.selected
+nav div.selected
 {
 	color: orange;
 	border: 1px solid green;
@@ -242,14 +243,14 @@ $(function()
 	 		$("#flashcard").click()
 	 	}
  	})
- 	$("nav span").click(function()
+ 	$("nav div").click(function()
  	{
  		$(".selected").removeClass("selected")
  		$(this).addClass("selected")
  		$("article").hide()
  		$("#"+$(this).attr('page')).show()
  	})
- 	$("span[page='1']").click()
+ 	$("div[page='1']").click()
 
 	$("a.sound").click(function(e) {$(this).next('audio').get(0).play()})
 	$("a.sound").parents("tr").click(function(e) {$(this).find('audio').get(0).play()})
@@ -261,9 +262,9 @@ $(function()
 <body>
 
 <nav>
-<span page='1'>Chart</span>
-<span page='2'>Write</span>
-<span page='3'>Learn</span>
+<div page='1'>Chart</div>
+<div page='2'>Write</div>
+<div page='3'>Learn</div>
 </nav>
 
 
@@ -440,7 +441,16 @@ $(function()
 </table>
 
 
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+  ga('create', 'UA-42927190-1', 'apexmentis.com');
+  ga('send', 'pageview');
+
+</script>
 
 </body>
 </html>
