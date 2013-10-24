@@ -1,8 +1,10 @@
 <html>
 <head>
 <title>Morse Code</title>
+<meta charset="utf-8" />
 <link rel="shortcut icon" type="image/x-icon" href="/psi.ico" />
 <link rel="stylesheet" type="text/css" href="/jquery.ui.css" />
+<link rel="stylesheet" type="text/css" href="icons.css" />
 <script src="/jquery.js"></script>
 <script src="/jquery.ui.js"></script>
 <style>
@@ -36,6 +38,8 @@ article
 }
 table, th, td
 {
+	border: 1px solid black;
+	border-collapse: collapse;
 }
 table, textarea
 {
@@ -48,8 +52,7 @@ th, td
 	max-height: 75px;
 	min-width: 75px;
 	max-width: 75px;
-	border: 1px solid black;
-	border-collapse: collapse;
+
 
 }
 textarea
@@ -72,6 +75,16 @@ textarea
 	top: 200px;
 	left: 200px;
 }
+#readout
+{
+	position: absolute;
+	top: 400px;
+	left: 200px;
+}
+#readout td
+{
+	margin-left: 10px;
+}
 #flashcard, #guess
 {
 	font-size: 200%;
@@ -93,6 +106,19 @@ textarea
 	height: 100px;
 	border: 1px solid green;
 }
+.play
+{
+	display: block;
+	height: 50px;
+	width: 50px;
+	position: absolute;
+	top: 400px;
+	left: 180px;
+}
+.play:before
+{
+	content: "\25B6";
+}
 </style>
 <script>
 String.prototype.trim=function()	{return this.replace(/^\s+|\s+$/g, '');};
@@ -113,7 +139,7 @@ String.prototype.fulltrim=function(){return this.replace(/(?:(?:^|\n)\s+|\s+(?:$
 			main.children().each(function() {this.insertBefore(firstElem[counter++], this.firstChild)})
 		})
 	}
-	$.fn.shuffle = function() 
+	$.fn.shuffle = function()
 	{
 		return this.each(function()
 		{
@@ -122,7 +148,7 @@ String.prototype.fulltrim=function(){return this.replace(/(?:(?:^|\n)\s+|\s+(?:$
 		})
 	}
 
-	$.shuffle = function(arr) 
+	$.shuffle = function(arr)
 	{
 		for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x)
 		return arr
@@ -132,47 +158,27 @@ String.prototype.fulltrim=function(){return this.replace(/(?:(?:^|\n)\s+|\s+(?:$
 
 $(function()
 {
-	$("th, td").draggable()
+	$("th, td").draggable(
+	{
+		snap: true
+		// grid: [20, 20]
+	})
 	$(".accept").droppable(
 	{
-		drop: function(event, ui) 
-		{
-			$(this).css("background-color", "rgba(0, 255, 0, .5)")
-			// $(this).append($(ui.draggable).clone())
-			// $(".accepts").find("audio").each(function()
-			// {
-			// 	$(this)[0].play()
-			// })
-		},
+		drop: function(event, ui) {$(this).css("background-color", "rgba(0, 255, 0, .5)")},
 		out: function(event, ui) {$(this).css("background-color", "rgba(255, 255, 255, 1)")}
 	})
 
-	$("th, td").each(function()
-	{
-		$(this).data({'originalLeft': $(this).css('left'), 'originalTop': $(this).css('top')})
-	})
+	$("th, td").each(function() {$(this).data({'originalLeft': $(this).css('left'), 'originalTop': $(this).css('top')})})
 
-	$("#revert").click(function() 
-	{
-		$("th, td").each(function()
-		{
-			$(this).css({'left': $(this).data('originalLeft'), 'top': $(this).data('originalTop')})
-		})
-	})
-	// $("table tbody").sortable({helper: function(e, tr)
-	// {
-	// 	var originals = tr.children()
-	// 	var helper = tr.clone()
-	// 	helper.children().each(function(index){$(this).width(originals.eq(index).width())})
-	// 	return helper
-	// }})
+	$("#revert").click(function() {$("th, td").each(function() {$(this).css({'left': $(this).data('originalLeft'), 'top': $(this).data('originalTop')})})})
+
  	$("table tbody, div").disableSelection()
  	$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).hide()}})
  	$("#showall").click(function()
  	{
  		if ($(this).is(":checked")) {$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).show()}})}
  		else {$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).hide()}})}
-
  	})
  	var encodex = "{"
  	var decodex = "{"
@@ -187,16 +193,28 @@ $(function()
  	decodex += "}"
 	encodex = $.parseJSON(encodex)
 	decodex = $.parseJSON(decodex)
+
+	$("#tables th").each(function()
+	{
+		$(this).attr("class", $(this).html())
+		$(this).next("td").find("audio").attr("class", $(this).html()+"_audio")
+	})
+	$("#2 table, #2 table *").show()
+
  	$("#t1").keyup(function()
  	{
+ 		$("#readout tr").html("")
  		var str = $(this).val().split('')
  		var result = ""
+
  		str.map(function(a, b)
  		{
  			if (a == " ") {result+=" "; return}
  			a = a.toUpperCase()
+ 			$("#readout tr").append($("#tables").find("th."+a).parent().find("td").clone())
  			result += encodex[a]+" "
  		})
+ 		sounds()
  		$("#t2").val(result)
  	})
  	$("#t2").keyup(function(e)
@@ -212,6 +230,7 @@ $(function()
 	 			result += decodex[a]
 	 		})
 	 		$("#t1").val(result)
+	 		$("#t1").keyup()
  		}
  	})
  	var i = 0
@@ -250,13 +269,29 @@ $(function()
  		$("article").hide()
  		$("#"+$(this).attr('page')).show()
  	})
- 	$("div[page='1']").click()
+ 	$("div[page='2']").click()
 
-	$("a.sound").click(function(e) {$(this).next('audio').get(0).play()})
-	$("a.sound").parents("tr").click(function(e) {$(this).find('audio').get(0).play()})
+	sounds()
 
 	$("#all").shuffleRows()
+
+	$(".play").click(function(e)
+	{
+		$("#readout audio").eq(0).get(0).play()
+
+		var i = 1
+		$("#readout audio").on("ended", function()
+		{
+			$("#readout audio").eq(i).get(0).play()
+			i++
+		})
+	})
 })
+function sounds()
+{
+	$("a.sound").click(function(e) {$(this).next('audio').get(0).play()})
+	$("a.sound").parents("tr").click(function(e) {$(this).find('audio').get(0).play()})
+}
 </script>
 </head>
 <body>
@@ -361,6 +396,9 @@ $(function()
 		<div><textarea id='t1' placeholder='Plain text'></textarea></div>
 		<div><textarea id='t2' placeholder='Morse code'></textarea></div>
 	</div>
+	<div class='play'></div>
+	<div id='readout'><table><tr></tr></table></div>
+
 </article>
 
 <article id='3'>
@@ -439,6 +477,8 @@ $(function()
 <tr><th>4</th><td>....-</td></tr>
 <tr><th>5</th><td>.....</td></tr>
 </table>
+<!-- <h3>Morse</h3> -->
+<!-- <p>WARNING: THIS MAKES SOUNDS<br>A few months ago I wanted to learn Morse Code (I want to make an Android app that vibrates a person's name in morse code as the text tone). It's the product of about three hours of work that I did while waiting to meet with a professor (yes, I had to wait that long). My next goal for this project is to chain together sounds in the write tab.</p> -->
 
 
 <script>
