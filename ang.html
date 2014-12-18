@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" ng-app="morseApp">
+<head>
+	<meta charset="utf-8">
+	<title>Morse Code</title>
+
+	<script src="jquery.js"></script>
+	<script src="underscore.js"></script>
+	<script src="angular.js"></script>
+	<script src="controller.js"></script>
+
+	<link rel="stylesheet" href="reset.css">
+	<link rel="stylesheet" href="app.css">
+	<link rel="stylesheet" href="bootstrap.css">
+	<style>
+	table, td
+	{
+		border: 1px solid black;
+		border-collapse: collapse;
+	}
+	td
+	{
+		width: 20px;
+	}
+
+	</style>
+
+
+</head>
+<body ng-controller="morsesDataControl">
+
+	<table>
+		<tr ng-repeat="morse in morses">
+			<td><a class='glyph'>{{morse.glyph}}</a></td>
+			<td><a class='morse'>{{morse.morse}}</a></td>
+			<td><a class='sound'>{{morse.sound}}</a></td>
+		</tr>
+	</table>
+
+
+<script>
+function sounds()
+{
+	$(".sound").click(function(e) {$(this).next('audio').get(0).play()})
+	// $("a.sound").parents("tr").click(function(e) {$(this).find('audio').get(0).play()})
+}
+$(function()
+{
+	$(".sound").each(function()
+	{
+		$(this).html("<audio src='ogg/"+$(this).prev("glyph").html()+"_morse_code.ogg'></audio>")
+	})
+	sounds();
+})
+</script>
+</body>
+</html>
+

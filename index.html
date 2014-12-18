@@ -3,16 +3,34 @@
 <title>Morse Code</title>
 <meta charset="utf-8" />
 <link rel="shortcut icon" type="image/x-icon" href="/psi.ico" />
-<link rel="stylesheet" type="text/css" href="/jquery.ui.css" />
+<link rel="stylesheet" type="text/css" href="jquery.ui.css" />
 <link rel="stylesheet" type="text/css" href="icons.css" />
-<script src="/jquery.js"></script>
-<script src="/jquery.ui.js"></script>
+<link rel="stylesheet" type="text/css" href="fonts.css" />
+<style>
+
+@font-face {
+	font-family: "Raleway";
+	font-style: normal;
+	font-weight: 400;
+	src: local("Raleway"), url(http://themes.googleusercontent.com/static/fonts/raleway/v6/cIFypx4yrWPDz3zOxk7hIQLUuEpTyoUstqEm5AMlJo4.woff) format("woff");
+}
+@font-face {
+	font-family: "Open Sans";
+	font-style: normal;
+	font-weight: 400;
+	src: local("Open Sans"), local("OpenSans"), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3bO3LdcAZYWl9Si6vvxL-qU.woff) format("woff");
+}
+
+
+</style>
+<script src="jquery.js"></script>
+<script src="jquery.ui.js"></script>
 <style>
 body
 {
 	width: 100%;
 	height: 100%;
-	font-family: arial;
+	font-family: "Open Sans";
 }
 nav, article
 {
@@ -48,10 +66,10 @@ table, textarea
 }
 th, td
 {
-	min-height: 75px;
-	max-height: 75px;
-	min-width: 75px;
-	max-width: 75px;
+	min-height: 50px;
+	max-height: 50px;
+	min-width: 50px;
+	max-width: 50px;
 
 
 }
@@ -67,19 +85,19 @@ textarea
 {
 	position: absolute;
 	top: 100px;
-	left: 100px;
+	left: 50px;
 }
 #game, #write
 {
 	position: absolute;
-	top: 200px;
-	left: 200px;
+	top: 100px;
+	left: 100px;
 }
 #readout
 {
 	position: absolute;
-	top: 400px;
-	left: 200px;
+	top: 300px;
+	left: 100px;
 }
 #readout td
 {
@@ -93,27 +111,27 @@ textarea
 	margin: 10px;
 	padding: 10px;
 }
-.accepts
+/*.accepts
 {
 	position: absolute;
 	top: 100px;
 	right: 100px;
 	z-index: -1;
-}
-.accept
+}*/
+/*.accept
 {
 	width: 50px;
 	height: 100px;
 	border: 1px solid green;
-}
+}*/
 .play
 {
 	display: block;
 	height: 50px;
 	width: 50px;
 	position: absolute;
-	top: 400px;
-	left: 180px;
+	top: 300px;
+	left: 50px;
 }
 .play:before
 {
@@ -269,7 +287,7 @@ $(function()
  		$("article").hide()
  		$("#"+$(this).attr('page')).show()
  	})
- 	$("div[page='2']").click()
+ 	$("div[page='4']").click()
 
 	sounds()
 
@@ -300,6 +318,7 @@ function sounds()
 <div page='1'>Chart</div>
 <div page='2'>Write</div>
 <div page='3'>Learn</div>
+<div page='4'>About</div>
 </nav>
 
 
@@ -382,13 +401,13 @@ function sounds()
 <tr><th>5</th><td><a class='sound'>.....</a><audio src="ogg/5_morse_code.ogg"></audio></td></tr>
 </table>
 </div>
-<div class='accepts'>
+<!-- <div class='accepts'>
 	<div class='accept'></div>
 	<div class='accept'></div>
 	<div class='accept'></div>
 	<div class='accept'></div>
 	<div class='accept'></div>
-</div>
+</div> -->
 </article>
 
 <article id='2'>
@@ -408,78 +427,78 @@ function sounds()
 </div>
 </article>
 
+<article id='4'>
+<p>WARNING: THIS MAKES SOUNDS<br>A few months ago I wanted to learn Morse Code (I want to make an Android app that vibrates a person's name in morse code as the text tone). It's the product of about three hours of work that I did while waiting to meet with a professor (yes, I had to wait that long).</p>
+</article>
 
 
 
 
 
 <table id='all'>
-<tr><th>T</th><td>-</td></tr>
-<tr><th>E</th><td>.</td></tr>
-<tr><th>M</th><td>--</td></tr>
-<tr><th>N</th><td>-.</td></tr>
-<tr><th>A</th><td>.-</td></tr>
-<tr><th>I</th><td>..</td></tr>
-<tr><th>O</th><td>---</td></tr>
-<tr><th>G</th><td>--.</td></tr>
-<tr><th>K</th><td>-.-</td></tr>
-<tr><th>D</th><td>-..</td></tr>
-<tr><th>W</th><td>.--</td></tr>
-<tr><th>R</th><td>.-.</td></tr>
-<tr><th>U</th><td>..-</td></tr>
-<tr><th>S</th><td>...</td></tr>
-<tr><th> </th><td>----</td></tr>
-<tr><th> </th><td>---.</td></tr>
-<tr><th>Q</th><td>--.-</td></tr>
-<tr><th>Z</th><td>--..</td></tr>
-<tr><th>Y</th><td>-.--</td></tr>
-<tr><th>C</th><td>-.-.</td></tr>
-<tr><th>X</th><td>-..-</td></tr>
-<tr><th>B</th><td>-...</td></tr>
-<tr><th>J</th><td>.---</td></tr>
-<tr><th>P</th><td>.--.</td></tr>
-<tr><th> </th><td>.-.-</td></tr>
-<tr><th>L</th><td>.-..</td></tr>
-<tr><th> </th><td>..--</td></tr>
-<tr><th>F</th><td>..-.</td></tr>
-<tr><th>V</th><td>...-</td></tr>
-<tr><th>H</th><td>....</td></tr>
-<tr><th>0</th><td>-----</td></tr>
-<tr><th>9</th><td>----.</td></tr>
-<tr><th> </th><td>---.-</td></tr>
-<tr><th>8</th><td>---..</td></tr>
-<tr><th> </th><td>--.--</td></tr>
-<tr><th> </th><td>--.-.</td></tr>
-<tr><th> </th><td>--..-</td></tr>
-<tr><th>7</th><td>--...</td></tr>
-<tr><th> </th><td>-.---</td></tr>
-<tr><th> </th><td>-.--.</td></tr>
-<tr><th> </th><td>-.-.-</td></tr>
-<tr><th> </th><td>-.-..</td></tr>
-<tr><th> </th><td>-..--</td></tr>
-<tr><th> </th><td>-..-.</td></tr>
-<tr><th> </th><td>-...-</td></tr>
-<tr><th>6</th><td>-....</td></tr>
-<tr><th>1</th><td>.----</td></tr>
-<tr><th> </th><td>.---.</td></tr>
-<tr><th> </th><td>.--.-</td></tr>
-<tr><th> </th><td>.--..</td></tr>
-<tr><th> </th><td>.-.--</td></tr>
-<tr><th> </th><td>.-.-.</td></tr>
-<tr><th> </th><td>.-..-</td></tr>
-<tr><th> </th><td>.-...</td></tr>
-<tr><th>2</th><td>..---</td></tr>
-<tr><th> </th><td>..--.</td></tr>
-<tr><th> </th><td>..-.-</td></tr>
-<tr><th> </th><td>..-..</td></tr>
-<tr><th>3</th><td>...--</td></tr>
-<tr><th> </th><td>...-.</td></tr>
-<tr><th>4</th><td>....-</td></tr>
-<tr><th>5</th><td>.....</td></tr>
+	<tr><th>T</th><td>-</td></tr>
+	<tr><th>E</th><td>.</td></tr>
+	<tr><th>M</th><td>--</td></tr>
+	<tr><th>N</th><td>-.</td></tr>
+	<tr><th>A</th><td>.-</td></tr>
+	<tr><th>I</th><td>..</td></tr>
+	<tr><th>O</th><td>---</td></tr>
+	<tr><th>G</th><td>--.</td></tr>
+	<tr><th>K</th><td>-.-</td></tr>
+	<tr><th>D</th><td>-..</td></tr>
+	<tr><th>W</th><td>.--</td></tr>
+	<tr><th>R</th><td>.-.</td></tr>
+	<tr><th>U</th><td>..-</td></tr>
+	<tr><th>S</th><td>...</td></tr>
+	<tr><th> </th><td>----</td></tr>
+	<tr><th> </th><td>---.</td></tr>
+	<tr><th>Q</th><td>--.-</td></tr>
+	<tr><th>Z</th><td>--..</td></tr>
+	<tr><th>Y</th><td>-.--</td></tr>
+	<tr><th>C</th><td>-.-.</td></tr>
+	<tr><th>X</th><td>-..-</td></tr>
+	<tr><th>B</th><td>-...</td></tr>
+	<tr><th>J</th><td>.---</td></tr>
+	<tr><th>P</th><td>.--.</td></tr>
+	<tr><th> </th><td>.-.-</td></tr>
+	<tr><th>L</th><td>.-..</td></tr>
+	<tr><th> </th><td>..--</td></tr>
+	<tr><th>F</th><td>..-.</td></tr>
+	<tr><th>V</th><td>...-</td></tr>
+	<tr><th>H</th><td>....</td></tr>
+	<tr><th>0</th><td>-----</td></tr>
+	<tr><th>9</th><td>----.</td></tr>
+	<tr><th> </th><td>---.-</td></tr>
+	<tr><th>8</th><td>---..</td></tr>
+	<tr><th> </th><td>--.--</td></tr>
+	<tr><th> </th><td>--.-.</td></tr>
+	<tr><th> </th><td>--..-</td></tr>
+	<tr><th>7</th><td>--...</td></tr>
+	<tr><th> </th><td>-.---</td></tr>
+	<tr><th> </th><td>-.--.</td></tr>
+	<tr><th> </th><td>-.-.-</td></tr>
+	<tr><th> </th><td>-.-..</td></tr>
+	<tr><th> </th><td>-..--</td></tr>
+	<tr><th> </th><td>-..-.</td></tr>
+	<tr><th> </th><td>-...-</td></tr>
+	<tr><th>6</th><td>-....</td></tr>
+	<tr><th>1</th><td>.----</td></tr>
+	<tr><th> </th><td>.---.</td></tr>
+	<tr><th> </th><td>.--.-</td></tr>
+	<tr><th> </th><td>.--..</td></tr>
+	<tr><th> </th><td>.-.--</td></tr>
+	<tr><th> </th><td>.-.-.</td></tr>
+	<tr><th> </th><td>.-..-</td></tr>
+	<tr><th> </th><td>.-...</td></tr>
+	<tr><th>2</th><td>..---</td></tr>
+	<tr><th> </th><td>..--.</td></tr>
+	<tr><th> </th><td>..-.-</td></tr>
+	<tr><th> </th><td>..-..</td></tr>
+	<tr><th>3</th><td>...--</td></tr>
+	<tr><th> </th><td>...-.</td></tr>
+	<tr><th>4</th><td>....-</td></tr>
+	<tr><th>5</th><td>.....</td></tr>
 </table>
-<!-- <h3>Morse</h3> -->
-<!-- <p>WARNING: THIS MAKES SOUNDS<br>A few months ago I wanted to learn Morse Code (I want to make an Android app that vibrates a person's name in morse code as the text tone). It's the product of about three hours of work that I did while waiting to meet with a professor (yes, I had to wait that long). My next goal for this project is to chain together sounds in the write tab.</p> -->
-
 
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
