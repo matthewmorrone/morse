@@ -2,130 +2,93 @@
 <head>
 <title>Morse Code</title>
 <meta charset="utf-8" />
-<link rel="shortcut icon" type="image/x-icon" href="/psi.ico" />
-<link rel="stylesheet" type="text/css" href="jquery.ui.css" />
+<link rel="shortcut icon" type="image/x-icon" href="http://www.matthewmorrone.com/psi.ico" />
+<link rel="stylesheet" type="text/css" href="http://www.matthewmorrone.com/jquery.ui.css" />
 <link rel="stylesheet" type="text/css" href="icons.css" />
-<link rel="stylesheet" type="text/css" href="fonts.css" />
+<link rel="stylesheet" type="text/css" href="http://www.matthewmorrone.com/fonts.css" />
+<script src="http://www.matthewmorrone.com/jquery.js"></script>
+<script src="http://www.matthewmorrone.com/jquery.ui.js"></script>
 <style>
-
-@font-face {
-	font-family: "Raleway";
-	font-style: normal;
-	font-weight: 400;
-	src: local("Raleway"), url(http://themes.googleusercontent.com/static/fonts/raleway/v6/cIFypx4yrWPDz3zOxk7hIQLUuEpTyoUstqEm5AMlJo4.woff) format("woff");
-}
-@font-face {
-	font-family: "Open Sans";
-	font-style: normal;
-	font-weight: 400;
-	src: local("Open Sans"), local("OpenSans"), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3bO3LdcAZYWl9Si6vvxL-qU.woff) format("woff");
-}
-
-
-</style>
-<script src="jquery.js"></script>
-<script src="jquery.ui.js"></script>
-<style>
-body
-{
+body {
 	width: 100%;
 	height: 100%;
 	font-family: "Open Sans";
 }
-nav, article
-{
+nav, article {
 	width: 70%;
 	margin: auto;
 }
-nav div
-{
+nav div {
 	border: 1px solid gray;
 	color: lightgray;
 	text-align: center;
 	display: inline-block;
 	width: 200px;
 }
-nav div.selected
-{
+nav div.selected {
 	color: orange;
 	border: 1px solid green;
 }
-article
-{
+article {
 	display: none;
 }
-table, th, td
-{
+table, th, td {
 	border: 1px solid black;
 	border-collapse: collapse;
 }
-table, textarea
-{
+table, textarea {
 	font-size: 200%;
 	float: left;
 }
-th, td
-{
+th, td {
 	min-height: 50px;
 	max-height: 50px;
 	min-width: 50px;
-	max-width: 50px;
-
-
+	/*max-width: 50px;*/
 }
-textarea
-{
+textarea {
 	text-transform: uppercase;
 }
-#all
-{
-	display: none;
+#all {
+	/*display: none;*/
 }
-#tables
-{
+#tables {
 	position: absolute;
 	top: 100px;
 	left: 50px;
 }
-#game, #write
-{
+#game, #write {
 	position: absolute;
 	top: 100px;
-	left: 100px;
+	/*left: 100px;*/
 }
-#readout
-{
+#readout {
 	position: absolute;
 	top: 300px;
 	left: 100px;
 }
-#readout td
-{
+#readout td {
 	margin-left: 10px;
 }
-#flashcard, #guess
-{
+#flashcard, #guess {
 	font-size: 200%;
 	border: 1px solid blue;
 	text-align: center;
 	margin: 10px;
 	padding: 10px;
 }
-/*.accepts
-{
+/*.accepts {
 	position: absolute;
 	top: 100px;
 	right: 100px;
 	z-index: -1;
 }*/
-/*.accept
-{
+/*.accept {
 	width: 50px;
 	height: 100px;
 	border: 1px solid green;
 }*/
-.play
-{
+.play {
 	display: block;
 	height: 50px;
 	width: 50px;
@@ -133,56 +96,89 @@ textarea
 	top: 300px;
 	left: 50px;
 }
-.play:before
-{
+.play:before {
 	content: "\25B6";
+}
+
+.complete {
+	border: 2px solid yellow;
+}
+.correct {
+	border: 2px solid green;
+}
+.incorrect {
+	border: 2px solid red;
 }
 </style>
 <script>
-String.prototype.trim=function()	{return this.replace(/^\s+|\s+$/g, '');};
-String.prototype.ltrim=function()	{return this.replace(/^\s+/,'');};
-String.prototype.rtrim=function()	{return this.replace(/\s+$/,'');};
-String.prototype.fulltrim=function(){return this.replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace(/\s+/g,' ');};
+String.prototype.trim		= function()	{return this.replace(/^\s+|\s+$/g, '');};
+String.prototype.ltrim		= function()	{return this.replace(/^\s+/,'');};
+String.prototype.rtrim		= function()	{return this.replace(/\s+$/,'');};
+String.prototype.fulltrim	= function()	{return this.replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace(/\s+/g,' ');};
+var log = console.log.bind(console);
 
-(function($)
-{
-	$.fn.shuffleRows = function()
-	{
-		return this.each(function()
-		{
-			var main = $(/table/i.test(this.tagName) ? this.tBodies[0] : this)
-			var firstElem = [], counter=0
-			main.children().each(function() {firstElem.push(this.firstChild)})
-			main.shuffle()
-			main.children().each(function() {this.insertBefore(firstElem[counter++], this.firstChild)})
-		})
-	}
-	$.fn.shuffle = function()
-	{
-		return this.each(function()
-		{
-			var items = $(this).children()
-			return (items.length) ? $(this).html($.shuffle(items)) : this
-		})
-	}
+$.fn.shuffleRows = function() {
+	var $i = $(this)
+	$('tr', $i).sort(function(a, b){
+		return (Math.round(Math.random()) - 0.5)
+	}).appendTo($i)
+	return $(this);
+}
+$.fn.sortRows = function() {
+	$('tr', $(this)).sort(function(a, b){
+		if ($(a).find("td").html() > $(b).find("td").html()) return 1
+		if ($(a).find("td").html() < $(b).find("td").html()) return -1
+		return 0
+	}).appendTo($(this))
+	return $(this);
+}
+$.fn.sortRowsBy = function() {
+	$('tr', $(this)).sort(function(a, b){
+		if ($(a).attr("i") > $(b).attr("i")) return 1
+		if ($(a).attr("i") < $(b).attr("i")) return -1
+		if ($(a).find("td").html() > $(b).find("td").html()) return 1
+		if ($(a).find("td").html() < $(b).find("td").html()) return -1		
+		return 0
+	}).appendTo($(this))
+	return $(this);
+}
 
-	$.shuffle = function(arr)
-	{
-		for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x)
-		return arr
-	}
-})
-(jQuery)
 
-$(function()
-{
-	$("th, td").draggable(
-	{
-		snap: true
-		// grid: [20, 20]
+$(function() {
+
+
+	$("#all tr").show().each(function(i, v){
+		if ($(this).attr("blank") === "yes" || $(this).attr("i") > $("#length").val()) {
+			$(this).hide()
+		}
+	});
+
+	$("#shuffle").click(function() {
+		if ($(this).is(":checked")) {
+			$("#all").shuffleRows()
+		}
+		else {
+			$("#all").sortRowsBy()
+		}
+		
+
+		$("#all").find(".incorrect, .correct").removeClass("incorrect").removeClass("correct")
+		i = 0;
+		$("#flashcard").html($("#all").find("th:visible").eq(i).html()).click(); 
+	})//.click()
+
+	$("#length").change(function() {
+
+		$("#all tr").show().each(function(i, v){
+			if ($(this).attr("blank") === "yes" || $(this).attr("i") > $("#length").val()) {
+				$(this).hide()
+			}
+		});		
+
 	})
-	$(".accept").droppable(
-	{
+
+	$("th, td").draggable({snap: true /*grid: [20, 20]*/ })
+	$(".accept").droppable({
 		drop: function(event, ui) {$(this).css("background-color", "rgba(0, 255, 0, .5)")},
 		out: function(event, ui) {$(this).css("background-color", "rgba(255, 255, 255, 1)")}
 	})
@@ -191,122 +187,173 @@ $(function()
 
 	$("#revert").click(function() {$("th, td").each(function() {$(this).css({'left': $(this).data('originalLeft'), 'top': $(this).data('originalTop')})})})
 
- 	$("table tbody, div").disableSelection()
- 	$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).hide()}})
- 	$("#showall").click(function()
- 	{
- 		if ($(this).is(":checked")) {$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).show()}})}
- 		else {$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).hide()}})}
- 	})
- 	var encodex = "{"
- 	var decodex = "{"
- 	$("#all tr").each(function()
- 	{
- 		encodex += "\""+$(this).find("th").html().trim()+"\": \""+$(this).find("td").html().trim()+"\","
- 		decodex += "\""+$(this).find("td").html().trim()+"\": \""+$(this).find("th").html().trim()+"\","
- 	})
- 	encodex = encodex.substring(0, encodex.length-1)
- 	decodex = decodex.substring(0, decodex.length-1)
- 	encodex += "}"
- 	decodex += "}"
+	$("table tbody, div").disableSelection()
+
+	$("#showall").click(function() {
+		if ($(this).is(":checked")) {
+			$("tr").each(function() {
+				if ($(this).find("th").text().trim() === "") {
+					$(this).show()
+				}
+			})
+		}
+		else {
+			$("tr").each(function() {
+				if ($(this).find("th").text().trim() === "") {
+					$(this).hide()
+				}
+			})
+		}
+	})
+	var encodex = "{"
+	var decodex = "{"
+	var qu = "\"";
+	$("#all tr").each(function() {
+		encodex += qu+$(this).find("th").html().trim()+qu+": "+qu+$(this).find("td").html().trim()+qu+","
+		decodex += qu+$(this).find("td").html().trim()+qu+": "+qu+$(this).find("th").html().trim()+qu+","
+	})
+	encodex = encodex.substring(0, encodex.length-1)
+	decodex = decodex.substring(0, decodex.length-1)
+	encodex += "}"
+	decodex += "}"
 	encodex = $.parseJSON(encodex)
 	decodex = $.parseJSON(decodex)
 
-	$("#tables th").each(function()
-	{
+
+	$("#tables th").each(function() {
 		$(this).attr("class", $(this).html())
 		$(this).next("td").find("audio").attr("class", $(this).html()+"_audio")
 	})
 	$("#2 table, #2 table *").show()
 
- 	$("#t1").keyup(function()
- 	{
- 		$("#readout tr").html("")
- 		var str = $(this).val().split('')
- 		var result = ""
+	$("#t1").keyup(function() {
+		$("#readout tr").html("")
+		var str = $(this).val().split('')
+		var result = ""
 
- 		str.map(function(a, b)
- 		{
- 			if (a == " ") {result+=" "; return}
- 			a = a.toUpperCase()
- 			$("#readout tr").append($("#tables").find("th."+a).parent().find("td").clone())
- 			result += encodex[a]+" "
- 		})
- 		sounds()
- 		$("#t2").val(result)
- 	})
- 	$("#t2").keyup(function(e)
- 	{
- 		if (e.which == 32 || e.which == 13)
- 		{
+		str.map(function(a, b) {
+			if (a === " ") {result+=" "; return}
+			a = a.toUpperCase()
+			$("#readout tr").append($("#tables").find("th."+a).parent().find("td").clone())
+			result += encodex[a]+" "
+		})
+		sounds()
+		$("#t2").val(result)
+	})
+	$("#t2").keyup(function(e) {
+		if (e.which === 32 || e.which === 13) {
 			var str = $(this).val().split(/\s/)
-	 		var result = ""
-	 		str.map(function(a, b)
-	 		{
-	 			if (b == str.length-1) {return}
-	 			if (typeof decodex[a] == "undefined") {result += "!"; return}
-	 			result += decodex[a]
-	 		})
-	 		$("#t1").val(result)
-	 		$("#t1").keyup()
- 		}
- 	})
- 	var i = 0
- 	$("#flashcard").click(function()
- 	{
-	  	var flashcardwidth = $("#flashcard").width()
- 		var flashcardheight = $("#flashcard").height()
- 		$(this).html($("#all").find("th").eq(i).html())
- 		i++
- 		$(this).width(flashcardwidth).height(flashcardheight)
- 		$("#flashcard").width(flashcardwidth).height(flashcardheight)
- 		if (i >= $("#all").find("th").length) {i = 0}
- 		$("#guess").val("").css("background-color", "")
- 	})
- 	$("#guess").keyup(function(e)
- 	{
- 		var guess = $(this).val().trim()
- 		var check = decodex[guess].trim()
- 		var a = $("#flashcard").html().trim()
- 		var b = encodex[a].trim()
+			var result = ""
+			str.map(function(a, b) {
+				if (b === str.length-1) {return}
+				if (typeof decodex[a] === "undefined") {result += "!"; return}
+				result += decodex[a]
+			})
+			$("#t1").val(result)
+			$("#t1").keyup()
+		}
+	})
+	var i = 0; 
 
- 		if (guess.length == b.length)
- 		{
-	 		if (check == a) {$(this).css('background-color', 'green') }
-	 		else {$(this).css('background-color', 'red') }
-	 	}
-	 	if (e.which == 13)
-	 	{
-	 		$("#flashcard").click()
-	 	}
- 	})
- 	$("nav div").click(function()
- 	{
- 		$(".selected").removeClass("selected")
- 		$(this).addClass("selected")
- 		$("article").hide()
- 		$("#"+$(this).attr('page')).show()
- 	})
- 	$("div[page='4']").click()
+	$("#flashcard").click(function() {
+		if (!$("#all").find("th").eq(i).is(":visible")) {
+			if (i >= $("#all").find("th:visible").length) {
+				i = 0; 
+			}
+		}
 
-	sounds()
+		var flashcardwidth = $("#flashcard").width()
+		var flashcardheight = $("#flashcard").height()
+		$(this).width(flashcardwidth).height(flashcardheight)
+		$("#flashcard").width(flashcardwidth).height(flashcardheight)
 
-	$("#all").shuffleRows()
+		$(this).html($("#all").find("th:visible").eq(i).html()); 
+		$(".complete").removeClass("complete")
+		$("#all").find("th").eq(i).addClass("complete").next("td").addClass("complete")
+		i++;
 
-	$(".play").click(function(e)
-	{
+		if (i >= $("#all").find("th").length) {i = 0; }
+		$("#guess").val("").css("background-color", "").focus()
+	})
+		
+	var accKeys = [189, 190, 8, 13, 46, 116];
+	$("#guess").keydown(function(e) {
+		if ($.inArray(e.which, accKeys) < 0) {
+			return false;
+		}	
+		var guess = $(this).val().trim()
+		if (e.which === 8 && guess === "") {
+			i -= 2; 
+			if (i < 0) {
+				i = $("#all").find("th:visible").length-1; 
+			}
+			$("#flashcard").click();
+		}
+
+	}).keyup(function(e) {
+		log(e.which)
+		var state = 0;
+		if ($.inArray(e.which, accKeys) < 0) {
+			return false;
+		}	
+		if (e.which === 13) {
+			$("#flashcard").click()
+		}
+		var guess = $(this).val().trim()
+
+
+		var check = decodex[guess]
+		if (typeof check === "undefined") {
+			state = 2;
+		}
+
+		var a = $("#flashcard").html().trim()
+		if (a === "Start") {
+			return true
+		}
+		var b = encodex[a]
+
+		if (!guess) {return}
+		// if (!guess || !check) {return}
+		// if (!a || !b) {return}
+		if (guess.length === b.length) {
+			if (check === a)	{state = 1}
+			else				{state = 2}
+		}
+		else if (guess.length < b.length) 	{state = 0}
+		else								{state = 2}
+		log(guess, check, a, b, state)
+
+		
+		if 		(state === 0) {$(this).css('background-color', '')}
+		else if (state === 1) {$(this).css('background-color', 'green'); 	$("#all").find("th").eq(i-1).addClass("correct")  .removeClass("incorrect").next("td").addClass("correct")  .removeClass("incorrect")}
+		else if (state === 2) {$(this).css('background-color', 'red'); 		$("#all").find("th").eq(i-1).addClass("incorrect").removeClass("correct")  .next("td").addClass("incorrect").removeClass("correct")  }
+	})
+	$("nav div").click(function() {
+		$(".selected").removeClass("selected")
+		$(this).addClass("selected")
+		$("article").hide()
+		$("#"+$(this).attr('page')).show()
+	})
+	$("div[page='3']").click()
+
+	// sounds()
+
+
+
+	$(".play").click(function(e) {
 		$("#readout audio").eq(0).get(0).play()
-
 		var i = 1
-		$("#readout audio").on("ended", function()
-		{
+		$("#readout audio").on("ended", function() {
 			$("#readout audio").eq(i).get(0).play()
 			i++
 		})
 	})
+	$("#guess").focus()
+
+
 })
-function sounds()
-{
+function sounds() {
 	$("a.sound").click(function(e) {$(this).next('audio').get(0).play()})
 	$("a.sound").parents("tr").click(function(e) {$(this).find('audio').get(0).play()})
 }
@@ -318,7 +365,6 @@ function sounds()
 <div page='1'>Chart</div>
 <div page='2'>Write</div>
 <div page='3'>Learn</div>
-<div page='4'>About</div>
 </nav>
 
 
@@ -422,94 +468,92 @@ function sounds()
 
 <article id='3'>
 <div id='game'>
+	<label>Randomize? <input type='checkbox' id='shuffle'></label>
+	<label>Length <input type='number' id='length' min="1" max="5" value="3"></label>
+
 	<div id='flashcard'>Start</div>
 	<input type='text' id='guess'>
 </div>
 </article>
 
-<article id='4'>
-<p>WARNING: THIS MAKES SOUNDS<br>A few months ago I wanted to learn Morse Code (I want to make an Android app that vibrates a person's name in morse code as the text tone). It's the product of about three hours of work that I did while waiting to meet with a professor (yes, I had to wait that long).</p>
-</article>
+
 
 
 
 
 
 <table id='all'>
-<tr><th>T</th><td>-</td></tr>
-<tr><th>E</th><td>.</td></tr>
-<tr><th>M</th><td>--</td></tr>
-<tr><th>N</th><td>-.</td></tr>
-<tr><th>A</th><td>.-</td></tr>
-<tr><th>I</th><td>..</td></tr>
-<tr><th>O</th><td>---</td></tr>
-<tr><th>G</th><td>--.</td></tr>
-<tr><th>K</th><td>-.-</td></tr>
-<tr><th>D</th><td>-..</td></tr>
-<tr><th>W</th><td>.--</td></tr>
-<tr><th>R</th><td>.-.</td></tr>
-<tr><th>U</th><td>..-</td></tr>
-<tr><th>S</th><td>...</td></tr>
-<tr><th> </th><td>----</td></tr>
-<tr><th> </th><td>---.</td></tr>
-<tr><th>Q</th><td>--.-</td></tr>
-<tr><th>Z</th><td>--..</td></tr>
-<tr><th>Y</th><td>-.--</td></tr>
-<tr><th>C</th><td>-.-.</td></tr>
-<tr><th>X</th><td>-..-</td></tr>
-<tr><th>B</th><td>-...</td></tr>
-<tr><th>J</th><td>.---</td></tr>
-<tr><th>P</th><td>.--.</td></tr>
-<tr><th> </th><td>.-.-</td></tr>
-<tr><th>L</th><td>.-..</td></tr>
-<tr><th> </th><td>..--</td></tr>
-<tr><th>F</th><td>..-.</td></tr>
-<tr><th>V</th><td>...-</td></tr>
-<tr><th>H</th><td>....</td></tr>
-<tr><th>0</th><td>-----</td></tr>
-<tr><th>9</th><td>----.</td></tr>
-<tr><th> </th><td>---.-</td></tr>
-<tr><th>8</th><td>---..</td></tr>
-<tr><th> </th><td>--.--</td></tr>
-<tr><th> </th><td>--.-.</td></tr>
-<tr><th> </th><td>--..-</td></tr>
-<tr><th>7</th><td>--...</td></tr>
-<tr><th> </th><td>-.---</td></tr>
-<tr><th> </th><td>-.--.</td></tr>
-<tr><th> </th><td>-.-.-</td></tr>
-<tr><th> </th><td>-.-..</td></tr>
-<tr><th> </th><td>-..--</td></tr>
-<tr><th> </th><td>-..-.</td></tr>
-<tr><th> </th><td>-...-</td></tr>
-<tr><th>6</th><td>-....</td></tr>
-<tr><th>1</th><td>.----</td></tr>
-<tr><th> </th><td>.---.</td></tr>
-<tr><th> </th><td>.--.-</td></tr>
-<tr><th> </th><td>.--..</td></tr>
-<tr><th> </th><td>.-.--</td></tr>
-<tr><th> </th><td>.-.-.</td></tr>
-<tr><th> </th><td>.-..-</td></tr>
-<tr><th> </th><td>.-...</td></tr>
-<tr><th>2</th><td>..---</td></tr>
-<tr><th> </th><td>..--.</td></tr>
-<tr><th> </th><td>..-.-</td></tr>
-<tr><th> </th><td>..-..</td></tr>
-<tr><th>3</th><td>...--</td></tr>
-<tr><th> </th><td>...-.</td></tr>
-<tr><th>4</th><td>....-</td></tr>
-<tr><th>5</th><td>.....</td></tr>
+
+<tr i="1" blank="no"  ><th>T</th><td>-</td></tr>
+<tr i="1" blank="no"  ><th>E</th><td>.</td></tr>
+<tr i="2" blank="no"  ><th>M</th><td>--</td></tr>
+<tr i="2" blank="no"  ><th>N</th><td>-.</td></tr>
+<tr i="2" blank="no"  ><th>A</th><td>.-</td></tr>
+<tr i="2" blank="no"  ><th>I</th><td>..</td></tr>
+
+
+<tr i="3" blank="no"  ><th>O</th><td>---</td></tr>
+<tr i="3" blank="no"  ><th>G</th><td>--.</td></tr>
+<tr i="3" blank="no"  ><th>K</th><td>-.-</td></tr>
+<tr i="3" blank="no"  ><th>D</th><td>-..</td></tr>
+<tr i="3" blank="no"  ><th>W</th><td>.--</td></tr>
+<tr i="3" blank="no"  ><th>R</th><td>.-.</td></tr>
+<tr i="3" blank="no"  ><th>U</th><td>..-</td></tr>
+<tr i="3" blank="no"  ><th>S</th><td>...</td></tr>
+
+
+<tr i="4" blank="yes" ><th> </th><td>----</td></tr>
+<tr i="4" blank="yes" ><th> </th><td>---.</td></tr>
+<tr i="4" blank="no"  ><th>Q</th><td>--.-</td></tr>
+<tr i="4" blank="no"  ><th>Z</th><td>--..</td></tr>
+<tr i="4" blank="no"  ><th>Y</th><td>-.--</td></tr>
+<tr i="4" blank="no"  ><th>C</th><td>-.-.</td></tr>
+<tr i="4" blank="no"  ><th>X</th><td>-..-</td></tr>
+<tr i="4" blank="no"  ><th>B</th><td>-...</td></tr>
+<tr i="4" blank="no"  ><th>J</th><td>.---</td></tr>
+<tr i="4" blank="no"  ><th>P</th><td>.--.</td></tr>
+<tr i="4" blank="yes" ><th> </th><td>.-.-</td></tr>
+<tr i="4" blank="no"  ><th>L</th><td>.-..</td></tr>
+<tr i="4" blank="yes" ><th> </th><td>..--</td></tr>
+<tr i="4" blank="no"  ><th>F</th><td>..-.</td></tr>
+<tr i="4" blank="no"  ><th>V</th><td>...-</td></tr>
+<tr i="4" blank="no"  ><th>H</th><td>....</td></tr>
+
+
+<tr i="5" blank="no"  ><th>0</th><td>-----</td></tr>
+<tr i="5" blank="no"  ><th>9</th><td>----.</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>---.-</td></tr>
+<tr i="5" blank="no"  ><th>8</th><td>---..</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>--.--</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>--.-.</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>--..-</td></tr>
+<tr i="5" blank="no"  ><th>7</th><td>--...</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>-.---</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>-.--.</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>-.-.-</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>-.-..</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>-..--</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>-..-.</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>-...-</td></tr>
+<tr i="5" blank="no"  ><th>6</th><td>-....</td></tr>
+<tr i="5" blank="no"  ><th>1</th><td>.----</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>.---.</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>.--.-</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>.--..</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>.-.--</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>.-.-.</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>.-..-</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>.-...</td></tr>
+<tr i="5" blank="no"  ><th>2</th><td>..---</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>..--.</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>..-.-</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>..-..</td></tr>
+<tr i="5" blank="no"  ><th>3</th><td>...--</td></tr>
+<tr i="5" blank="yes" ><th> </th><td>...-.</td></tr>
+<tr i="5" blank="no"  ><th>4</th><td>....-</td></tr>
+<tr i="5" blank="no"  ><th>5</th><td>.....</td></tr>
 </table>
 
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-42927190-1', 'apexmentis.com');
-  ga('send', 'pageview');
-
-</script>
 
 </body>
 </html>
