@@ -3,313 +3,390 @@
 <title>Morse Code</title>
 <meta charset="utf-8" />
 <link rel="shortcut icon" type="image/x-icon" href="/psi.ico" />
-<link rel="stylesheet" type="text/css" href="jquery.ui.css" />
+<link rel="stylesheet" type="text/css" href="/jquery.ui.css" />
 <link rel="stylesheet" type="text/css" href="icons.css" />
-<link rel="stylesheet" type="text/css" href="fonts.css" />
-<style>
-
-@font-face {
-	font-family: "Raleway";
-	font-style: normal;
-	font-weight: 400;
-	src: local("Raleway"), url(http://themes.googleusercontent.com/static/fonts/raleway/v6/cIFypx4yrWPDz3zOxk7hIQLUuEpTyoUstqEm5AMlJo4.woff) format("woff");
-}
-@font-face {
-	font-family: "Open Sans";
-	font-style: normal;
-	font-weight: 400;
-	src: local("Open Sans"), local("OpenSans"), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3bO3LdcAZYWl9Si6vvxL-qU.woff) format("woff");
-}
-
-
-</style>
-<script src="jquery.js"></script>
-<script src="jquery.ui.js"></script>
-<style>
-body
-{
-	width: 100%;
-	height: 100%;
-	font-family: "Open Sans";
-}
-nav, article
-{
-	width: 70%;
-	margin: auto;
-}
-nav div
-{
-	border: 1px solid gray;
-	color: lightgray;
-	text-align: center;
-	display: inline-block;
-	width: 200px;
-}
-nav div.selected
-{
-	color: orange;
-	border: 1px solid green;
-}
-article
-{
-	display: none;
-}
-table, th, td
-{
-	border: 1px solid black;
-	border-collapse: collapse;
-}
-table, textarea
-{
-	font-size: 200%;
-	float: left;
-}
-th, td
-{
-	min-height: 50px;
-	max-height: 50px;
-	min-width: 50px;
-	max-width: 50px;
-
-
-}
-textarea
-{
-	text-transform: uppercase;
-}
-#all
-{
-	display: none;
-}
-#tables
-{
-	position: absolute;
-	top: 100px;
-	left: 50px;
-}
-#game, #write
-{
-	position: absolute;
-	top: 100px;
-	left: 100px;
-}
-#readout
-{
-	position: absolute;
-	top: 300px;
-	left: 100px;
-}
-#readout td
-{
-	margin-left: 10px;
-}
-#flashcard, #guess
-{
-	font-size: 200%;
-	border: 1px solid blue;
-	text-align: center;
-	margin: 10px;
-	padding: 10px;
-}
-/*.accepts
-{
-	position: absolute;
-	top: 100px;
-	right: 100px;
-	z-index: -1;
-}*/
-/*.accept
-{
-	width: 50px;
-	height: 100px;
-	border: 1px solid green;
-}*/
-.play
-{
-	display: block;
-	height: 50px;
-	width: 50px;
-	position: absolute;
-	top: 300px;
-	left: 50px;
-}
-.play:before
-{
-	content: "\25B6";
-}
-</style>
+<link rel="stylesheet" type="text/css" href="/fonts.css" />
 <script>
-String.prototype.trim=function()	{return this.replace(/^\s+|\s+$/g, '');};
-String.prototype.ltrim=function()	{return this.replace(/^\s+/,'');};
-String.prototype.rtrim=function()	{return this.replace(/\s+$/,'');};
-String.prototype.fulltrim=function(){return this.replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace(/\s+/g,' ');};
-
-(function($)
-{
-	$.fn.shuffleRows = function()
-	{
-		return this.each(function()
-		{
-			var main = $(/table/i.test(this.tagName) ? this.tBodies[0] : this)
-			var firstElem = [], counter=0
-			main.children().each(function() {firstElem.push(this.firstChild)})
-			main.shuffle()
-			main.children().each(function() {this.insertBefore(firstElem[counter++], this.firstChild)})
-		})
+var log = console.log.bind(console)
+</script>
+<script src="/jquery.js"></script>
+<script src="/jquery.ui.js"></script>
+<script src="treant/vendor/raphael.js"></script>
+<script src="treant/treant.js"></script>
+<script src="combinatorics.js"></script>
+<link rel="stylesheet" type="text/css" href="treant/treant.css" />
+<link rel="stylesheet" type="text/css" href="morse.css" />
+<script>
+(function($){
+	$.fn.shuffle = function() {
+		return this.each(function(){
+			var items = $(this).find('tr') || $(this).children();
+			return (items.length) ? $(this).html($.shuffle(items)) : this;
+		});
 	}
-	$.fn.shuffle = function()
-	{
-		return this.each(function()
-		{
-			var items = $(this).children()
-			return (items.length) ? $(this).html($.shuffle(items)) : this
-		})
+	$.shuffle = function(arr) {
+		for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x);
+		return arr;
 	}
+})(jQuery);
 
-	$.shuffle = function(arr)
-	{
-		for(var j, x, i = arr.length; i; j = parseInt(Math.random() * i), x = arr[--i], arr[i] = arr[j], arr[j] = x)
-		return arr
-	}
-})
-(jQuery)
+$(function() {
 
-$(function()
-{
-	$("th, td").draggable(
-	{
-		snap: true
-		// grid: [20, 20]
-	})
-	$(".accept").droppable(
-	{
-		drop: function(event, ui) {$(this).css("background-color", "rgba(0, 255, 0, .5)")},
-		out: function(event, ui) {$(this).css("background-color", "rgba(255, 255, 255, 1)")}
+
+	$("nav div").click(function() {
+ 		$(".selected").removeClass("selected")
+ 		$(this).addClass("selected")
+ 		$('article').hide()
+ 		$("#" + $(this).attr('page')).show()
+ 	})
+ 	$("div[page='3']").click()
+	$("div[page='3']").click(function() {
+		$('#guess').focus()
 	})
 
-	$("th, td").each(function() {$(this).data({'originalLeft': $(this).css('left'), 'originalTop': $(this).css('top')})})
 
-	$("#revert").click(function() {$("th, td").each(function() {$(this).css({'left': $(this).data('originalLeft'), 'top': $(this).data('originalTop')})})})
+	$("#showall").click(function() {
+		if ($(this).is(":checked")) {
+			$("#1 tr").each(function() {
+				if ($(this).find("th").text() == "_") {
+					$(this).show()
+				}
+			})
+		}
+		else {
+			$("#1 tr").each(function() {
+				if ($(this).find("th").text() == "_") {
+					$(this).hide()
+				}
+			})
+		}
+	}).click().click()
 
- 	$("table tbody, div").disableSelection()
- 	$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).hide()}})
- 	$("#showall").click(function()
- 	{
- 		if ($(this).is(":checked")) {$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).show()}})}
- 		else {$("tr").each(function() {if ($(this).find("th").text().trim() == "") {$(this).hide()}})}
- 	})
- 	var encodex = "{"
- 	var decodex = "{"
- 	$("#all tr").each(function()
- 	{
- 		encodex += "\""+$(this).find("th").html().trim()+"\": \""+$(this).find("td").html().trim()+"\","
- 		decodex += "\""+$(this).find("td").html().trim()+"\": \""+$(this).find("th").html().trim()+"\","
- 	})
- 	encodex = encodex.substring(0, encodex.length-1)
- 	decodex = decodex.substring(0, decodex.length-1)
- 	encodex += "}"
- 	decodex += "}"
+
+ 	var encodex = "{", decodex = "{", str, result, i, j
+	$("#all tr").each(function() {
+		encodex += "\"" + $(this).find("th").html().trim() + "\"" + ": \"" + $(this).find("td").html().trim() + "\","
+		decodex += "\"" + $(this).find("td").html().trim() + "\"" + ": \"" + $(this).find("th").html().trim() + "\","
+	})
+	encodex = encodex.substring(0, encodex.length-1)
+	decodex = decodex.substring(0, decodex.length-1)
+	encodex += "}"
+	decodex += "}"
 	encodex = $.parseJSON(encodex)
 	decodex = $.parseJSON(decodex)
 
-	$("#tables th").each(function()
-	{
-		$(this).attr("class", $(this).html())
-		$(this).next("td").find("audio").attr("class", $(this).html()+"_audio")
+	$("#t1").keyup(function() {
+		$("#readout tr").html("")
+		$(this).val($(this).val().toUpperCase())
+		str = $(this).val().split('')
+		result = ""
+
+		str.map(function(a, b) {
+			if (a == " ") {
+				result += " ";
+				return
+			}
+			if (typeof encodex[a] == "undefined") {
+				result += "";
+				return
+			}
+			$("#readout tr").append($("#tables").find("th." + a).parent().find("td").clone())
+			result += encodex[a] + " "
+		})
+		$("#t2").val(result)
 	})
-	$("#2 table, #2 table *").show()
+	$("#t2").keyup(function(e) {
+		$("#readout tr").html("")
 
- 	$("#t1").keyup(function()
- 	{
- 		$("#readout tr").html("")
- 		var str = $(this).val().split('')
- 		var result = ""
+		str = $(this).val().split(/\s/)
+		result = ""
+		str.map(function(a, b) {
+			if (typeof decodex[a] == "undefined") {
+				result += "";
+				return
+			}
+			result += decodex[a]
+			$("#readout tr").append($("#tables").find("th." + decodex[a]).parent().find("td").clone())
+		})
+		$("#t1").val(result)
+	})
+	$("#t2").keydown(function(e) {
+		if ([8, 13, 32, 189, 190].includes(e.which)) {
 
- 		str.map(function(a, b)
- 		{
- 			if (a == " ") {result+=" "; return}
- 			a = a.toUpperCase()
- 			$("#readout tr").append($("#tables").find("th."+a).parent().find("td").clone())
- 			result += encodex[a]+" "
- 		})
- 		sounds()
- 		$("#t2").val(result)
- 	})
- 	$("#t2").keyup(function(e)
- 	{
- 		if (e.which == 32 || e.which == 13)
- 		{
-			var str = $(this).val().split(/\s/)
-	 		var result = ""
-	 		str.map(function(a, b)
-	 		{
-	 			if (b == str.length-1) {return}
-	 			if (typeof decodex[a] == "undefined") {result += "!"; return}
-	 			result += decodex[a]
-	 		})
-	 		$("#t1").val(result)
-	 		$("#t1").keyup()
- 		}
- 	})
- 	var i = 0
- 	$("#flashcard").click(function()
- 	{
-	  	var flashcardwidth = $("#flashcard").width()
- 		var flashcardheight = $("#flashcard").height()
- 		$(this).html($("#all").find("th").eq(i).html())
- 		i++
- 		$(this).width(flashcardwidth).height(flashcardheight)
- 		$("#flashcard").width(flashcardwidth).height(flashcardheight)
- 		if (i >= $("#all").find("th").length) {i = 0}
- 		$("#guess").val("").css("background-color", "")
- 	})
- 	$("#guess").keyup(function(e)
- 	{
- 		var guess = $(this).val().trim()
- 		var check = decodex[guess].trim()
- 		var a = $("#flashcard").html().trim()
- 		var b = encodex[a].trim()
+		}
+		else {
+			e.preventDefault()
+			$(this).val($(this).val().substring(0, $(this).val().length-1))
+		}
+	})
 
- 		if (guess.length == b.length)
- 		{
-	 		if (check == a) {$(this).css('background-color', 'green') }
-	 		else {$(this).css('background-color', 'red') }
-	 	}
-	 	if (e.which == 13)
-	 	{
-	 		$("#flashcard").click()
-	 	}
- 	})
- 	$("nav div").click(function()
- 	{
- 		$(".selected").removeClass("selected")
- 		$(this).addClass("selected")
- 		$("article").hide()
- 		$("#"+$(this).attr('page')).show()
- 	})
- 	$("div[page='4']").click()
 
-	sounds()
-
-	$("#all").shuffleRows()
-
-	$(".play").click(function(e)
-	{
+	$(".play").click(function(e) {
 		$("#readout audio").eq(0).get(0).play()
-
-		var i = 1
-		$("#readout audio").on("ended", function()
-		{
+		i = 1
+		$("#readout audio").on("ended", function() {
+			if (!$("#readout audio").eq(i).get(0)) return
 			$("#readout audio").eq(i).get(0).play()
 			i++
 		})
 	})
+
+	j = 0
+	$('#shuffle').click(function() {
+		$('#all').shuffle()
+		$('#guess').keyup().focus()
+	}).click()
+	$("#flashcard").click(function() {
+		$('#guess').removeAttr('disabled')
+		$('#guess').focus()
+		$("#guess").val("").css("background-color", "rgb(255, 255, 255)")
+
+		$(this).html($("#all").find("th").eq(j).html())
+
+		j++
+		if (j >= $("#all").find("th").length) {
+			j = 0
+		}
+		if($(this).html() === '_') {
+			$("#flashcard").click()
+		}
+	})
+
+
+// $("#guess").keyup(function(e) {
+
+// })
+
+
+
+	$("#guess").keydown(function(e) {
+		if (![8, 13, 32, 189, 190].includes(e.which)) {
+			e.preventDefault()
+			$('#guess').focus()
+			return
+		}
+	})
+	$("#guess").keyup(function(e) {
+
+		if (e.which === 13 || e.which === 32) {
+			if ($(this).css('background-color') === 'rgb(0, 128, 0)') {
+				$("#flashcard").click()
+				return
+			}
+			$('#guess').focus()
+		}
+		var guess = $(this).val(),
+			a = $("#flashcard").html(),
+			check = decodex[guess],
+			b = encodex[a]
+
+		log(guess, a, check, b)
+
+		$(this).css("background-color", "rgb(255, 255, 255)")
+
+		if (guess.length == b.length) {
+			if (check == a) {
+				$(this).css('background-color', 'rgb(0, 128, 0)')
+			}
+			else {
+				$(this).css('background-color', 'rgb(255, 0, 0)')
+			}
+		}
+	})
+	$('#dot').click(function() {
+		$('#guess').val($('#guess').val()+'.')
+		$('#guess').keyup().focus()
+	})
+	$('#dash').click(function() {
+		$('#guess').val($('#guess').val()+'-')
+		$('#guess').keyup().focus()
+	})
+
+	simple_chart_config = {
+		chart: {
+			container: "#codetree",
+			rootOrientation: 'WEST',
+			hideRootNode: true,
+			connectors: {
+				type: 'bCurve',
+			},
+			animation: {
+				nodeAnimation: "easeOutBounce",
+				nodeSpeed: 700,
+				connectorsAnimation: "bounce",
+				connectorsSpeed: 700
+			},
+			// padding: 25,
+			levelSeparation:   20,
+			siblingSeparation: 0,
+			subTreeSeparation: 0
+		},
+		nodeStructure: {
+			text: {name: "start"},
+			children: [{
+				text: {name: "."},
+				children: [{
+					text: {name: ".."},
+					children: [{
+						text: {name: "..."},
+						children: [{
+							text: {name: "...."},
+						},{
+							text: {name: "...-"},
+						}],
+					},{
+						text: {name: "..-"},
+						children: [{
+							text: {name: "..-."},
+						},{
+							text: {name: "..--"},
+						}],
+					}]
+				},{
+					text: {name: "-."},
+					children: [{
+						text: {name: "-.."},
+						children: [{
+							text: {name: "-..."},
+						},{
+							text: {name: "-..-"},
+						}],
+					},{
+						text: {name: "-.-"},
+						children: [{
+							text: {name: "-.-."},
+						},{
+							text: {name: "-.--"},
+						}],
+					}]
+				}]
+			},{
+				text: {name: "-"},
+				children: [{
+					text: {name: "-."},
+					children: [{
+						text: {name: "-.."},
+						children: [{
+							text: {name: "-..."},
+						},{
+							text: {name: "-..-"},
+						}],
+					},{
+						text: {name: "-.-"},
+						children: [{
+							text: {name: "--."},
+						},{
+							text: {name: "---"},
+						}],
+					}]
+				},{
+					text: {name: "--"},
+					children: [{
+						text: {name: "--."},
+						children: [{
+							text: {name: "--.."},
+						},{
+							text: {name: "--.-"},
+						}],
+					},{
+						text: {name: "---"},
+						children: [{
+							text: {name: "---."},
+						},{
+							text: {name: "----"},
+						}],
+					}]
+				}]
+			}]
+		}
+	};
+	var my_chart = new Treant(simple_chart_config);
+
+	function cmb(arr, n) {
+		var result = [];
+		for(var i = 1; i <= n; i++) {
+			result = result.concat(Combinatorics.baseN(arr, i).toArray())
+		}
+		return result;
+	}
+
+
+	$("a.sound").click(function(e) {
+		$(this).next('audio').get(0).play()
+	})
+	$("table tbody, div").disableSelection()
+
+
+
+	$(document).on('mouseenter', '.node', function() {
+		$(this).addClass('invert')
+		$('a:contains("'+$(this).text()+'")').parents('tr').addClass('invert')
+	})
+	.on('mouseleave', '.node', function() {
+		$(this).removeClass('invert')
+		$('.invert').removeClass('invert')
+	})
+
+
+	var cheat = $('#tables').clone()
+	cheat.attr('id', 'cheat')
+	$('#game').after(cheat)
+	$('#cheat').toggle()
+
+	$(document).on('keydown', function(e) {
+		if (e.which === 27 && $("div[page='3']").is(':visible')) {
+			$('#cheat').toggle()
+
+		}
+
+	})
+
+
+
+
+
+return
+
+	$("#tables tbody").sortable({
+		snap: true,
+		helper: "clone",
+		handle: "th",
+		connectWith: "#tables tbody"
+	});
+	$(".accept").droppable({
+		drop: function(event, ui) {
+			$(this).css("background-color", "rgba(0, 255, 0, .5)")
+		},
+		out: function(event, ui) {
+			$(this).css("background-color", "rgba(255, 255, 255, 1)")
+		}
+	})
+
+	$("th, td").each(function() {
+		$(this).data({
+			'originalLeft': $(this).css('left'),
+			'originalTop': $(this).css('top')
+		})
+	})
+
+	$("#revert").click(function() {
+		$("th, td").each(function() {
+			$(this).css({
+				'left': $(this).data('originalLeft'),
+				'top': $(this).data('originalTop')
+			})
+		})
+	})
+
+
+
+
+
+
+	$("#all").shuffleRows()
+
 })
-function sounds()
-{
-	$("a.sound").click(function(e) {$(this).next('audio').get(0).play()})
-	$("a.sound").parents("tr").click(function(e) {$(this).find('audio').get(0).play()})
-}
+
 </script>
 </head>
 <body>
@@ -318,89 +395,102 @@ function sounds()
 <div page='1'>Chart</div>
 <div page='2'>Write</div>
 <div page='3'>Learn</div>
-<div page='4'>About</div>
 </nav>
 
 
 
 <article id='1'>
+<div id='wrapper'>
 <input type='checkbox' id='showall' /><label for='showall'>Show All</label>
-<button id="revert">Revert</button>
+<!-- <button id="revert">Revert</button> -->
 
 <div id='tables'>
-<table>
-<tr><th>T</th><td><a class='sound'>-</a><audio src="ogg/T_morse_code.ogg"></audio></td></tr>
-<tr><th>E</th><td><a class='sound'>.</a><audio src="ogg/E_morse_code.ogg"></audio></td></tr>
-</table>
-<table>
-<tr><th>M</th><td><a class='sound'>--</a><audio src="ogg/M_morse_code.ogg"></audio></td></tr>
-<tr><th>N</th><td><a class='sound'>-.</a><audio src="ogg/N_morse_code.ogg"></audio></td></tr>
-<tr><th>A</th><td><a class='sound'>.-</a><audio src="ogg/A_morse_code.ogg"></audio></td></tr>
-<tr><th>I</th><td><a class='sound'>..</a><audio src="ogg/I_morse_code.ogg"></audio></td></tr>
-</table>
-<table>
-<tr><th>O</th><td><a class='sound'>---</a><audio src="ogg/O_morse_code.ogg"></audio></td></tr>
-<tr><th>G</th><td><a class='sound'>--.</a><audio src="ogg/G_morse_code.ogg"></audio></td></tr>
-<tr><th>K</th><td><a class='sound'>-.-</a><audio src="ogg/K_morse_code.ogg"></audio></td></tr>
-<tr><th>D</th><td><a class='sound'>-..</a><audio src="ogg/D_morse_code.ogg"></audio></td></tr>
-<tr><th>W</th><td><a class='sound'>.--</a><audio src="ogg/W_morse_code.ogg"></audio></td></tr>
-<tr><th>R</th><td><a class='sound'>.-.</a><audio src="ogg/R_morse_code.ogg"></audio></td></tr>
-<tr><th>U</th><td><a class='sound'>..-</a><audio src="ogg/U_morse_code.ogg"></audio></td></tr>
-<tr><th>S</th><td><a class='sound'>...</a><audio src="ogg/S_morse_code.ogg"></audio></td></tr>
-</table>
-<table>
-<tr><th> </th><td>----</td></tr>
-<tr><th> </th><td>---.</td></tr>
-<tr><th>Q</th><td><a class='sound'>--.-</a><audio src="ogg/Q_morse_code.ogg"></audio></td></tr>
-<tr><th>Z</th><td><a class='sound'>--..</a><audio src="ogg/Z_morse_code.ogg"></audio></td></tr>
-<tr><th>Y</th><td><a class='sound'>-.--</a><audio src="ogg/Y_morse_code.ogg"></audio></td></tr>
-<tr><th>C</th><td><a class='sound'>-.-.</a><audio src="ogg/C_morse_code.ogg"></audio></td></tr>
-<tr><th>X</th><td><a class='sound'>-..-</a><audio src="ogg/X_morse_code.ogg"></audio></td></tr>
-<tr><th>B</th><td><a class='sound'>-...</a><audio src="ogg/B_morse_code.ogg"></audio></td></tr>
-<tr><th>J</th><td><a class='sound'>.---</a><audio src="ogg/J_morse_code.ogg"></audio></td></tr>
-<tr><th>P</th><td><a class='sound'>.--.</a><audio src="ogg/P_morse_code.ogg"></audio></td></tr>
-<tr><th> </th><td>.-.-</td></tr>
-<tr><th>L</th><td><a class='sound'>.-..</a><audio src="ogg/L_morse_code.ogg"></audio></td></tr>
-<tr><th> </th><td>..--</td></tr>
-<tr><th>F</th><td><a class='sound'>..-.</a><audio src="ogg/F_morse_code.ogg"></audio></td></tr>
-<tr><th>V</th><td><a class='sound'>...-</a><audio src="ogg/V_morse_code.ogg"></audio></td></tr>
-<tr><th>H</th><td><a class='sound'>....</a><audio src="ogg/H_morse_code.ogg"></audio></td></tr>
-</table>
-<table>
-<tr><th>0</th><td><a class='sound'>-----</a><audio src="ogg/0_morse_code.ogg"></audio></td></tr>
-<tr><th>9</th><td><a class='sound'>----.</a><audio src="ogg/9_morse_code.ogg"></audio></td></tr>
-<tr><th> </th><td>---.-</td></tr>
-<tr><th>8</th><td><a class='sound'>---..</a><audio src="ogg/8_morse_code.ogg"></audio></td></tr>
-<tr><th> </th><td>--.--</td></tr>
-<tr><th> </th><td>--.-.</td></tr>
-<tr><th> </th><td>--..-</td></tr>
-<tr><th>7</th><td><a class='sound'>--...</a><audio src="ogg/7_morse_code.ogg"></audio></td></tr>
-<tr><th> </th><td>-.---</td></tr>
-<tr><th> </th><td>-.--.</td></tr>
-<tr><th> </th><td>-.-.-</td></tr>
-<tr><th> </th><td>-.-..</td></tr>
-<tr><th> </th><td>-..--</td></tr>
-<tr><th> </th><td>-..-.</td></tr>
-<tr><th> </th><td>-...-</td></tr>
-<tr><th>6</th><td><a class='sound'>-....</a><audio src="ogg/6_morse_code.ogg"></audio></td></tr>
-<tr><th>1</th><td><a class='sound'>.----</a><audio src="ogg/1_morse_code.ogg"></audio></td></tr>
-<tr><th> </th><td>.---.</td></tr>
-<tr><th> </th><td>.--.-</td></tr>
-<tr><th> </th><td>.--..</td></tr>
-<tr><th> </th><td>.-.--</td></tr>
-<tr><th> </th><td>.-.-.</td></tr>
-<tr><th> </th><td>.-..-</td></tr>
-<tr><th> </th><td>.-...</td></tr>
-<tr><th>2</th><td><a class='sound'>..---</a><audio src="ogg/2_morse_code.ogg"></audio></td></tr>
-<tr><th> </th><td>..--.</td></tr>
-<tr><th> </th><td>..-.-</td></tr>
-<tr><th> </th><td>..-..</td></tr>
-<tr><th>3</th><td><a class='sound'>...--</a><audio src="ogg/3_morse_code.ogg"></audio></td></tr>
-<tr><th> </th><td>...-.</td></tr>
-<tr><th>4</th><td><a class='sound'>....-</a><audio src="ogg/4_morse_code.ogg"></audio></td></tr>
-<tr><th>5</th><td><a class='sound'>.....</a><audio src="ogg/5_morse_code.ogg"></audio></td></tr>
-</table>
+	<table>
+	<tbody>
+		<tr><th class='T'>T</th><td><a class='sound'>-</a><audio src="ogg/T_morse_code.ogg"></audio></td></tr>
+		<tr><th class='E'>E</th><td><a class='sound'>.</a><audio src="ogg/E_morse_code.ogg"></audio></td></tr>
+	</tbody>
+	</table>
+	<table>
+	<tbody>
+		<tr><th class='M'>M</th><td><a class='sound'>--</a><audio src="ogg/M_morse_code.ogg"></audio></td></tr>
+		<tr><th class='N'>N</th><td><a class='sound'>-.</a><audio src="ogg/N_morse_code.ogg"></audio></td></tr>
+		<tr><th class='A'>A</th><td><a class='sound'>.-</a><audio src="ogg/A_morse_code.ogg"></audio></td></tr>
+		<tr><th class='I'>I</th><td><a class='sound'>..</a><audio src="ogg/I_morse_code.ogg"></audio></td></tr>
+	</tbody>
+	</table>
+	<table>
+	<tbody>
+		<tr><th class='O'>O</th><td><a class='sound'>---</a><audio src="ogg/O_morse_code.ogg"></audio></td></tr>
+		<tr><th class='G'>G</th><td><a class='sound'>--.</a><audio src="ogg/G_morse_code.ogg"></audio></td></tr>
+		<tr><th class='K'>K</th><td><a class='sound'>-.-</a><audio src="ogg/K_morse_code.ogg"></audio></td></tr>
+		<tr><th class='D'>D</th><td><a class='sound'>-..</a><audio src="ogg/D_morse_code.ogg"></audio></td></tr>
+		<tr><th class='W'>W</th><td><a class='sound'>.--</a><audio src="ogg/W_morse_code.ogg"></audio></td></tr>
+		<tr><th class='R'>R</th><td><a class='sound'>.-.</a><audio src="ogg/R_morse_code.ogg"></audio></td></tr>
+		<tr><th class='U'>U</th><td><a class='sound'>..-</a><audio src="ogg/U_morse_code.ogg"></audio></td></tr>
+		<tr><th class='S'>S</th><td><a class='sound'>...</a><audio src="ogg/S_morse_code.ogg"></audio></td></tr>
+	</tbody>
+	</table>
+	<table>
+		<tbody>
+		<tr><th>_</th><td>----</td></tr>
+		<tr><th>_</th><td>---.</td></tr>
+		<tr><th class='Q'>Q</th><td><a class='sound'>--.-</a><audio src="ogg/Q_morse_code.ogg"></audio></td></tr>
+		<tr><th class='Z'>Z</th><td><a class='sound'>--..</a><audio src="ogg/Z_morse_code.ogg"></audio></td></tr>
+		<tr><th class='Y'>Y</th><td><a class='sound'>-.--</a><audio src="ogg/Y_morse_code.ogg"></audio></td></tr>
+		<tr><th class='C'>C</th><td><a class='sound'>-.-.</a><audio src="ogg/C_morse_code.ogg"></audio></td></tr>
+		<tr><th class='X'>X</th><td><a class='sound'>-..-</a><audio src="ogg/X_morse_code.ogg"></audio></td></tr>
+		<tr><th class='B'>B</th><td><a class='sound'>-...</a><audio src="ogg/B_morse_code.ogg"></audio></td></tr>
+		<tr><th class='J'>J</th><td><a class='sound'>.---</a><audio src="ogg/J_morse_code.ogg"></audio></td></tr>
+		<tr><th class='P'>P</th><td><a class='sound'>.--.</a><audio src="ogg/P_morse_code.ogg"></audio></td></tr>
+		<tr><th>_</th><td>.-.-</td></tr>
+		<tr><th class='L'>L</th><td><a class='sound'>.-..</a><audio src="ogg/L_morse_code.ogg"></audio></td></tr>
+		<tr><th>_</th><td>..--</td></tr>
+		<tr><th class='F'>F</th><td><a class='sound'>..-.</a><audio src="ogg/F_morse_code.ogg"></audio></td></tr>
+		<tr><th class='V'>V</th><td><a class='sound'>...-</a><audio src="ogg/V_morse_code.ogg"></audio></td></tr>
+		<tr><th class='H'>H</th><td><a class='sound'>....</a><audio src="ogg/H_morse_code.ogg"></audio></td></tr>
+	</tbody>
+	</table>
+<!-- 	<table>
+	<tbody>
+		<tr><th class='0'>0</th><td><a class='sound'>-----</a><audio src="ogg/0_morse_code.ogg"></audio></td></tr>
+		<tr><th class='9'>9</th><td><a class='sound'>----.</a><audio src="ogg/9_morse_code.ogg"></audio></td></tr>
+		<tr><th>_</th><td>---.-</td></tr>
+		<tr><th class='8'>8</th><td><a class='sound'>---..</a><audio src="ogg/8_morse_code.ogg"></audio></td></tr>
+		<tr><th>_</th><td>--.--</td></tr>
+		<tr><th>_</th><td>--.-.</td></tr>
+		<tr><th>_</th><td>--..-</td></tr>
+		<tr><th class='7'>7</th><td><a class='sound'>--...</a><audio src="ogg/7_morse_code.ogg"></audio></td></tr>
+		<tr><th>_</th><td>-.---</td></tr>
+		<tr><th>_</th><td>-.--.</td></tr>
+		<tr><th>_</th><td>-.-.-</td></tr>
+		<tr><th>_</th><td>-.-..</td></tr>
+		<tr><th>_</th><td>-..--</td></tr>
+		<tr><th>_</th><td>-..-.</td></tr>
+		<tr><th>_</th><td>-...-</td></tr>
+		<tr><th class='6'>6</th><td><a class='sound'>-....</a><audio src="ogg/6_morse_code.ogg"></audio></td></tr>
+		<tr><th class='1'>1</th><td><a class='sound'>.----</a><audio src="ogg/1_morse_code.ogg"></audio></td></tr>
+		<tr><th>_</th><td>.---.</td></tr>
+		<tr><th>_</th><td>.--.-</td></tr>
+		<tr><th>_</th><td>.--..</td></tr>
+		<tr><th>_</th><td>.-.--</td></tr>
+		<tr><th>_</th><td>.-.-.</td></tr>
+		<tr><th>_</th><td>.-..-</td></tr>
+		<tr><th>_</th><td>.-...</td></tr>
+		<tr><th class='2'>2</th><td><a class='sound'>..---</a><audio src="ogg/2_morse_code.ogg"></audio></td></tr>
+		<tr><th>_</th><td>..--.</td></tr>
+		<tr><th>_</th><td>..-.-</td></tr>
+		<tr><th>_</th><td>..-..</td></tr>
+		<tr><th class='3'>3</th><td><a class='sound'>...--</a><audio src="ogg/3_morse_code.ogg"></audio></td></tr>
+		<tr><th>_</th><td>...-.</td></tr>
+		<tr><th class='4'>4</th><td><a class='sound'>....-</a><audio src="ogg/4_morse_code.ogg"></audio></td></tr>
+		<tr><th class='5'>5</th><td><a class='sound'>.....</a><audio src="ogg/5_morse_code.ogg"></audio></td></tr>
+	</tbody>
+	</table> -->
 </div>
+<div id="codetree"></div>
+
+
 <!-- <div class='accepts'>
 	<div class='accept'></div>
 	<div class='accept'></div>
@@ -408,29 +498,30 @@ function sounds()
 	<div class='accept'></div>
 	<div class='accept'></div>
 </div> -->
+</div>
 </article>
 
 <article id='2'>
 	<div id='write'>
-		<div><textarea id='t1' placeholder='Plain text'></textarea></div>
-		<div><textarea id='t2' placeholder='Morse code'></textarea></div>
+		<textarea id='t1' placeholder='Plain text'></textarea>
+		<div class='play'>
+		</div>
+		<textarea id='t2' placeholder='Morse code'></textarea>
 	</div>
-	<div class='play'></div>
 	<div id='readout'><table><tr></tr></table></div>
 
 </article>
 
 <article id='3'>
 <div id='game'>
-	<div id='flashcard'>Start</div>
-	<input type='text' id='guess'>
+	<button id='flashcard'>Start</button>
+	<input type='text' id='guess' disabled>
+	<button id='shuffle'>Shuffle</button>
+	<div id='space'></div>
+	<button id='dot'  value='.'  title='dot' >&middot;</button>
+	<button id='dash' value='-' title='dash'>-</button>
 </div>
 </article>
-
-<article id='4'>
-<p>WARNING: THIS MAKES SOUNDS<br>A few months ago I wanted to learn Morse Code (I want to make an Android app that vibrates a person's name in morse code as the text tone). It's the product of about three hours of work that I did while waiting to meet with a professor (yes, I had to wait that long).</p>
-</article>
-
 
 
 
@@ -450,8 +541,8 @@ function sounds()
 <tr><th>R</th><td>.-.</td></tr>
 <tr><th>U</th><td>..-</td></tr>
 <tr><th>S</th><td>...</td></tr>
-<tr><th> </th><td>----</td></tr>
-<tr><th> </th><td>---.</td></tr>
+<tr><th>_</th><td>----</td></tr>
+<tr><th>_</th><td>---.</td></tr>
 <tr><th>Q</th><td>--.-</td></tr>
 <tr><th>Z</th><td>--..</td></tr>
 <tr><th>Y</th><td>-.--</td></tr>
@@ -460,56 +551,45 @@ function sounds()
 <tr><th>B</th><td>-...</td></tr>
 <tr><th>J</th><td>.---</td></tr>
 <tr><th>P</th><td>.--.</td></tr>
-<tr><th> </th><td>.-.-</td></tr>
+<tr><th>_</th><td>.-.-</td></tr>
 <tr><th>L</th><td>.-..</td></tr>
-<tr><th> </th><td>..--</td></tr>
+<tr><th>_</th><td>..--</td></tr>
 <tr><th>F</th><td>..-.</td></tr>
 <tr><th>V</th><td>...-</td></tr>
 <tr><th>H</th><td>....</td></tr>
-<tr><th>0</th><td>-----</td></tr>
+<!-- <tr><th>0</th><td>-----</td></tr>
 <tr><th>9</th><td>----.</td></tr>
-<tr><th> </th><td>---.-</td></tr>
+<tr><th>_</th><td>---.-</td></tr>
 <tr><th>8</th><td>---..</td></tr>
-<tr><th> </th><td>--.--</td></tr>
-<tr><th> </th><td>--.-.</td></tr>
-<tr><th> </th><td>--..-</td></tr>
+<tr><th>_</th><td>--.--</td></tr>
+<tr><th>_</th><td>--.-.</td></tr>
+<tr><th>_</th><td>--..-</td></tr>
 <tr><th>7</th><td>--...</td></tr>
-<tr><th> </th><td>-.---</td></tr>
-<tr><th> </th><td>-.--.</td></tr>
-<tr><th> </th><td>-.-.-</td></tr>
-<tr><th> </th><td>-.-..</td></tr>
-<tr><th> </th><td>-..--</td></tr>
-<tr><th> </th><td>-..-.</td></tr>
-<tr><th> </th><td>-...-</td></tr>
+<tr><th>_</th><td>-.---</td></tr>
+<tr><th>_</th><td>-.--.</td></tr>
+<tr><th>_</th><td>-.-.-</td></tr>
+<tr><th>_</th><td>-.-..</td></tr>
+<tr><th>_</th><td>-..--</td></tr>
+<tr><th>_</th><td>-..-.</td></tr>
+<tr><th>_</th><td>-...-</td></tr>
 <tr><th>6</th><td>-....</td></tr>
 <tr><th>1</th><td>.----</td></tr>
-<tr><th> </th><td>.---.</td></tr>
-<tr><th> </th><td>.--.-</td></tr>
-<tr><th> </th><td>.--..</td></tr>
-<tr><th> </th><td>.-.--</td></tr>
-<tr><th> </th><td>.-.-.</td></tr>
-<tr><th> </th><td>.-..-</td></tr>
-<tr><th> </th><td>.-...</td></tr>
+<tr><th>_</th><td>.---.</td></tr>
+<tr><th>_</th><td>.--.-</td></tr>
+<tr><th>_</th><td>.--..</td></tr>
+<tr><th>_</th><td>.-.--</td></tr>
+<tr><th>_</th><td>.-.-.</td></tr>
+<tr><th>_</th><td>.-..-</td></tr>
+<tr><th>_</th><td>.-...</td></tr>
 <tr><th>2</th><td>..---</td></tr>
-<tr><th> </th><td>..--.</td></tr>
-<tr><th> </th><td>..-.-</td></tr>
-<tr><th> </th><td>..-..</td></tr>
+<tr><th>_</th><td>..--.</td></tr>
+<tr><th>_</th><td>..-.-</td></tr>
+<tr><th>_</th><td>..-..</td></tr>
 <tr><th>3</th><td>...--</td></tr>
-<tr><th> </th><td>...-.</td></tr>
+<tr><th>_</th><td>...-.</td></tr>
 <tr><th>4</th><td>....-</td></tr>
-<tr><th>5</th><td>.....</td></tr>
+<tr><th>5</th><td>.....</td></tr> -->
 </table>
-
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-42927190-1', 'apexmentis.com');
-  ga('send', 'pageview');
-
-</script>
 
 </body>
 </html>
