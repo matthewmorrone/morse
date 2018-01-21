@@ -1,135 +1,83 @@
 <html>
 <head>
-<title>Morse Code</title>
-<meta charset="utf-8" />
-<link rel="shortcut icon" type="image/x-icon" href="http://www.matthewmorrone.com/psi.ico" />
-<link rel="stylesheet" type="text/css" href="http://www.matthewmorrone.com/jquery.ui.css" />
-<link rel="stylesheet" type="text/css" href="icons.css" />
-<link rel="stylesheet" type="text/css" href="http://www.matthewmorrone.com/fonts.css" />
-<script>
-var log = console.log.bind(console)
-</script>
-<script src="http://www.matthewmorrone.com/jquery.js"></script>
-<script src="http://www.matthewmorrone.com/jquery.ui.js"></script>
-<script src="treant/vendor/raphael.js"></script>
-<script src="treant/treant.js"></script>
-<script src="combinatorics.js"></script>
-<link rel="stylesheet" type="text/css" href="treant/treant.css" />
-<link rel="stylesheet" type="text/css" href="morse.css" />
-<script src='morse.js'></script>
+	<title>Morse Code</title>
+	<meta charset="utf-8" />
+	<link rel="shortcut icon" type="image/x-icon" href="http://www.matthewmorrone.com/psi.ico" />
+	<link rel="stylesheet" type="text/css" href="jquery.ui.css" />
+	<link rel="stylesheet" type="text/css" href="icons.css" />
+	<link rel="stylesheet" type="text/css" href="fonts.css" />
+	<script>
+	var log = console.log.bind(console)
+	</script>
+	<script src="jquery.js"></script>
+	<script src="jquery.ui.js"></script>
+	<script src="treant/vendor/raphael.js"></script>
+	<script src="treant/treant.js"></script>
+	<script src="combinatorics.js"></script>
+	<link rel="stylesheet" type="text/css" href="treant/treant.css" />
+	<link rel="stylesheet" type="text/css" href="morse.css" />
+	<script src='morse.js'></script>
 </head>
 <body>
-
 <nav>
-<div page='1'>Chart</div>
-<div page='2'>Write</div>
-<div page='3'>Learn</div>
+	<div page='1'>Chart</div>
+	<div page='2'>Write</div>
+	<div page='3'>Learn</div>
 </nav>
-
-
-
 <article id='1'>
-<div id='wrapper'>
-<input type='checkbox' id='showall' /><label for='showall'>Show All</label>
-<!-- <button id="revert">Revert</button> -->
-
-<div id='tables'>
-	<table>
-	<tbody>
-		<tr><th class='T'>T</th><td><a class='sound'>-</a><audio src="ogg/T_morse_code.ogg"></audio></td></tr>
-		<tr><th class='E'>E</th><td><a class='sound'>.</a><audio src="ogg/E_morse_code.ogg"></audio></td></tr>
-	</tbody>
-	</table>
-	<table>
-	<tbody>
-		<tr><th class='M'>M</th><td><a class='sound'>--</a><audio src="ogg/M_morse_code.ogg"></audio></td></tr>
-		<tr><th class='N'>N</th><td><a class='sound'>-.</a><audio src="ogg/N_morse_code.ogg"></audio></td></tr>
-		<tr><th class='A'>A</th><td><a class='sound'>.-</a><audio src="ogg/A_morse_code.ogg"></audio></td></tr>
-		<tr><th class='I'>I</th><td><a class='sound'>..</a><audio src="ogg/I_morse_code.ogg"></audio></td></tr>
-	</tbody>
-	</table>
-	<table>
-	<tbody>
-		<tr><th class='O'>O</th><td><a class='sound'>---</a><audio src="ogg/O_morse_code.ogg"></audio></td></tr>
-		<tr><th class='G'>G</th><td><a class='sound'>--.</a><audio src="ogg/G_morse_code.ogg"></audio></td></tr>
-		<tr><th class='K'>K</th><td><a class='sound'>-.-</a><audio src="ogg/K_morse_code.ogg"></audio></td></tr>
-		<tr><th class='D'>D</th><td><a class='sound'>-..</a><audio src="ogg/D_morse_code.ogg"></audio></td></tr>
-		<tr><th class='W'>W</th><td><a class='sound'>.--</a><audio src="ogg/W_morse_code.ogg"></audio></td></tr>
-		<tr><th class='R'>R</th><td><a class='sound'>.-.</a><audio src="ogg/R_morse_code.ogg"></audio></td></tr>
-		<tr><th class='U'>U</th><td><a class='sound'>..-</a><audio src="ogg/U_morse_code.ogg"></audio></td></tr>
-		<tr><th class='S'>S</th><td><a class='sound'>...</a><audio src="ogg/S_morse_code.ogg"></audio></td></tr>
-	</tbody>
-	</table>
-	<table>
-		<tbody>
-		<tr><th>_</th><td>----</td></tr>
-		<tr><th>_</th><td>---.</td></tr>
-		<tr><th class='Q'>Q</th><td><a class='sound'>--.-</a><audio src="ogg/Q_morse_code.ogg"></audio></td></tr>
-		<tr><th class='Z'>Z</th><td><a class='sound'>--..</a><audio src="ogg/Z_morse_code.ogg"></audio></td></tr>
-		<tr><th class='Y'>Y</th><td><a class='sound'>-.--</a><audio src="ogg/Y_morse_code.ogg"></audio></td></tr>
-		<tr><th class='C'>C</th><td><a class='sound'>-.-.</a><audio src="ogg/C_morse_code.ogg"></audio></td></tr>
-		<tr><th class='X'>X</th><td><a class='sound'>-..-</a><audio src="ogg/X_morse_code.ogg"></audio></td></tr>
-		<tr><th class='B'>B</th><td><a class='sound'>-...</a><audio src="ogg/B_morse_code.ogg"></audio></td></tr>
-		<tr><th class='J'>J</th><td><a class='sound'>.---</a><audio src="ogg/J_morse_code.ogg"></audio></td></tr>
-		<tr><th class='P'>P</th><td><a class='sound'>.--.</a><audio src="ogg/P_morse_code.ogg"></audio></td></tr>
-		<tr><th>_</th><td>.-.-</td></tr>
-		<tr><th class='L'>L</th><td><a class='sound'>.-..</a><audio src="ogg/L_morse_code.ogg"></audio></td></tr>
-		<tr><th>_</th><td>..--</td></tr>
-		<tr><th class='F'>F</th><td><a class='sound'>..-.</a><audio src="ogg/F_morse_code.ogg"></audio></td></tr>
-		<tr><th class='V'>V</th><td><a class='sound'>...-</a><audio src="ogg/V_morse_code.ogg"></audio></td></tr>
-		<tr><th class='H'>H</th><td><a class='sound'>....</a><audio src="ogg/H_morse_code.ogg"></audio></td></tr>
-	</tbody>
-	</table>
-<!-- 	<table>
-	<tbody>
-		<tr><th class='0'>0</th><td><a class='sound'>-----</a><audio src="ogg/0_morse_code.ogg"></audio></td></tr>
-		<tr><th class='9'>9</th><td><a class='sound'>----.</a><audio src="ogg/9_morse_code.ogg"></audio></td></tr>
-		<tr><th>_</th><td>---.-</td></tr>
-		<tr><th class='8'>8</th><td><a class='sound'>---..</a><audio src="ogg/8_morse_code.ogg"></audio></td></tr>
-		<tr><th>_</th><td>--.--</td></tr>
-		<tr><th>_</th><td>--.-.</td></tr>
-		<tr><th>_</th><td>--..-</td></tr>
-		<tr><th class='7'>7</th><td><a class='sound'>--...</a><audio src="ogg/7_morse_code.ogg"></audio></td></tr>
-		<tr><th>_</th><td>-.---</td></tr>
-		<tr><th>_</th><td>-.--.</td></tr>
-		<tr><th>_</th><td>-.-.-</td></tr>
-		<tr><th>_</th><td>-.-..</td></tr>
-		<tr><th>_</th><td>-..--</td></tr>
-		<tr><th>_</th><td>-..-.</td></tr>
-		<tr><th>_</th><td>-...-</td></tr>
-		<tr><th class='6'>6</th><td><a class='sound'>-....</a><audio src="ogg/6_morse_code.ogg"></audio></td></tr>
-		<tr><th class='1'>1</th><td><a class='sound'>.----</a><audio src="ogg/1_morse_code.ogg"></audio></td></tr>
-		<tr><th>_</th><td>.---.</td></tr>
-		<tr><th>_</th><td>.--.-</td></tr>
-		<tr><th>_</th><td>.--..</td></tr>
-		<tr><th>_</th><td>.-.--</td></tr>
-		<tr><th>_</th><td>.-.-.</td></tr>
-		<tr><th>_</th><td>.-..-</td></tr>
-		<tr><th>_</th><td>.-...</td></tr>
-		<tr><th class='2'>2</th><td><a class='sound'>..---</a><audio src="ogg/2_morse_code.ogg"></audio></td></tr>
-		<tr><th>_</th><td>..--.</td></tr>
-		<tr><th>_</th><td>..-.-</td></tr>
-		<tr><th>_</th><td>..-..</td></tr>
-		<tr><th class='3'>3</th><td><a class='sound'>...--</a><audio src="ogg/3_morse_code.ogg"></audio></td></tr>
-		<tr><th>_</th><td>...-.</td></tr>
-		<tr><th class='4'>4</th><td><a class='sound'>....-</a><audio src="ogg/4_morse_code.ogg"></audio></td></tr>
-		<tr><th class='5'>5</th><td><a class='sound'>.....</a><audio src="ogg/5_morse_code.ogg"></audio></td></tr>
-	</tbody>
-	</table> -->
-</div>
-<div id="codetree"></div>
-
-
-<!-- <div class='accepts'>
-	<div class='accept'></div>
-	<div class='accept'></div>
-	<div class='accept'></div>
-	<div class='accept'></div>
-	<div class='accept'></div>
-</div> -->
-</div>
+	<div id='wrapper'>
+		<input type='checkbox' id='showall' /><label for='showall'>Show All</label>
+		<div id='tables'>
+			<table>
+			<tbody>
+				<tr><th class='T'>T</th><td><a class='sound'>-</a><audio src="ogg/T_morse_code.ogg"></audio></td></tr>
+				<tr><th class='E'>E</th><td><a class='sound'>.</a><audio src="ogg/E_morse_code.ogg"></audio></td></tr>
+			</tbody>
+			</table>
+			<table>
+			<tbody>
+				<tr><th class='M'>M</th><td><a class='sound'>--</a><audio src="ogg/M_morse_code.ogg"></audio></td></tr>
+				<tr><th class='N'>N</th><td><a class='sound'>-.</a><audio src="ogg/N_morse_code.ogg"></audio></td></tr>
+				<tr><th class='A'>A</th><td><a class='sound'>.-</a><audio src="ogg/A_morse_code.ogg"></audio></td></tr>
+				<tr><th class='I'>I</th><td><a class='sound'>..</a><audio src="ogg/I_morse_code.ogg"></audio></td></tr>
+			</tbody>
+			</table>
+			<table>
+			<tbody>
+				<tr><th class='O'>O</th><td><a class='sound'>---</a><audio src="ogg/O_morse_code.ogg"></audio></td></tr>
+				<tr><th class='G'>G</th><td><a class='sound'>--.</a><audio src="ogg/G_morse_code.ogg"></audio></td></tr>
+				<tr><th class='K'>K</th><td><a class='sound'>-.-</a><audio src="ogg/K_morse_code.ogg"></audio></td></tr>
+				<tr><th class='D'>D</th><td><a class='sound'>-..</a><audio src="ogg/D_morse_code.ogg"></audio></td></tr>
+				<tr><th class='W'>W</th><td><a class='sound'>.--</a><audio src="ogg/W_morse_code.ogg"></audio></td></tr>
+				<tr><th class='R'>R</th><td><a class='sound'>.-.</a><audio src="ogg/R_morse_code.ogg"></audio></td></tr>
+				<tr><th class='U'>U</th><td><a class='sound'>..-</a><audio src="ogg/U_morse_code.ogg"></audio></td></tr>
+				<tr><th class='S'>S</th><td><a class='sound'>...</a><audio src="ogg/S_morse_code.ogg"></audio></td></tr>
+			</tbody>
+			</table>
+			<table>
+				<tbody>
+				<tr><th>_</th><td>----</td></tr>
+				<tr><th>_</th><td>---.</td></tr>
+				<tr><th class='Q'>Q</th><td><a class='sound'>--.-</a><audio src="ogg/Q_morse_code.ogg"></audio></td></tr>
+				<tr><th class='Z'>Z</th><td><a class='sound'>--..</a><audio src="ogg/Z_morse_code.ogg"></audio></td></tr>
+				<tr><th class='Y'>Y</th><td><a class='sound'>-.--</a><audio src="ogg/Y_morse_code.ogg"></audio></td></tr>
+				<tr><th class='C'>C</th><td><a class='sound'>-.-.</a><audio src="ogg/C_morse_code.ogg"></audio></td></tr>
+				<tr><th class='X'>X</th><td><a class='sound'>-..-</a><audio src="ogg/X_morse_code.ogg"></audio></td></tr>
+				<tr><th class='B'>B</th><td><a class='sound'>-...</a><audio src="ogg/B_morse_code.ogg"></audio></td></tr>
+				<tr><th class='J'>J</th><td><a class='sound'>.---</a><audio src="ogg/J_morse_code.ogg"></audio></td></tr>
+				<tr><th class='P'>P</th><td><a class='sound'>.--.</a><audio src="ogg/P_morse_code.ogg"></audio></td></tr>
+				<tr><th>_</th><td>.-.-</td></tr>
+				<tr><th class='L'>L</th><td><a class='sound'>.-..</a><audio src="ogg/L_morse_code.ogg"></audio></td></tr>
+				<tr><th>_</th><td>..--</td></tr>
+				<tr><th class='F'>F</th><td><a class='sound'>..-.</a><audio src="ogg/F_morse_code.ogg"></audio></td></tr>
+				<tr><th class='V'>V</th><td><a class='sound'>...-</a><audio src="ogg/V_morse_code.ogg"></audio></td></tr>
+				<tr><th class='H'>H</th><td><a class='sound'>....</a><audio src="ogg/H_morse_code.ogg"></audio></td></tr>
+			</tbody>
+			</table>
+		</div>
+		<div id="codetree"></div>
+	</div>
 </article>
-
 <article id='2'>
 	<div id='write'>
 		<textarea id='t1' placeholder='Plain text'></textarea>
@@ -138,92 +86,54 @@ var log = console.log.bind(console)
 		<textarea id='t2' placeholder='Morse code'></textarea>
 	</div>
 	<div id='readout'><table><tr></tr></table></div>
-
 </article>
-
 <article id='3'>
-<div id='game'>
-	<button id='flashcard'>Start</button>
-	<input type='text' id='guess' disabled>
-	<button id='shuffle'>Shuffle</button>
-	<div id='space'>
-		<label for="g1"><input type='checkbox' checked='checked' id='g1' class='lenControl' />&nbsp;1</label>
-		<label for="g2"><input type='checkbox' checked='checked' id='g2' class='lenControl' />&nbsp;2</label>
-		<label for="g3"><input type='checkbox' checked='checked' id='g3' class='lenControl' />&nbsp;3</label>
-		<label for="g4"><input type='checkbox' checked='checked' id='g4' class='lenControl' />&nbsp;4</label>
+	<div id='game'>
+		<button id='flashcard'>Start</button>
+		<input type='text' id='guess' disabled>		
+		<button id='shuffle'>Shuffle</button>
+		<div id='space'>
+			<label for="g1"><input type='checkbox' checked='checked' id='g1' class='lenControl' />&nbsp;1</label>
+			<label for="g2"><input type='checkbox' checked='checked' id='g2' class='lenControl' />&nbsp;2</label>
+			<label for="g3"><input type='checkbox' checked='checked' id='g3' class='lenControl' />&nbsp;3</label>
+			<label for="g4"><input type='checkbox' checked='checked' id='g4' class='lenControl' />&nbsp;4</label>
+		</div>
+		<button id='submit'>Submit</button>
+		<button id='dot'  value='.' title='dot' >&middot;</button>
+		<button id='dash' value='-' title='dash'>-</button>
 	</div>
-	<button id='dot'  value='.'  title='dot' >&middot;</button>
-	<button id='dash' value='-' title='dash'>-</button>
-</div>
 </article>
-
-
-
-
 <table id='all'>
-<tr><th>T</th><td>-</td></tr>
-<tr><th>E</th><td>.</td></tr>
-<tr><th>M</th><td>--</td></tr>
-<tr><th>N</th><td>-.</td></tr>
-<tr><th>A</th><td>.-</td></tr>
-<tr><th>I</th><td>..</td></tr>
-<tr><th>O</th><td>---</td></tr>
-<tr><th>G</th><td>--.</td></tr>
-<tr><th>K</th><td>-.-</td></tr>
-<tr><th>D</th><td>-..</td></tr>
-<tr><th>W</th><td>.--</td></tr>
-<tr><th>R</th><td>.-.</td></tr>
-<tr><th>U</th><td>..-</td></tr>
-<tr><th>S</th><td>...</td></tr>
-<tr><th>_</th><td>----</td></tr>
-<tr><th>_</th><td>---.</td></tr>
-<tr><th>Q</th><td>--.-</td></tr>
-<tr><th>Z</th><td>--..</td></tr>
-<tr><th>Y</th><td>-.--</td></tr>
-<tr><th>C</th><td>-.-.</td></tr>
-<tr><th>X</th><td>-..-</td></tr>
-<tr><th>B</th><td>-...</td></tr>
-<tr><th>J</th><td>.---</td></tr>
-<tr><th>P</th><td>.--.</td></tr>
-<tr><th>_</th><td>.-.-</td></tr>
-<tr><th>L</th><td>.-..</td></tr>
-<tr><th>_</th><td>..--</td></tr>
-<tr><th>F</th><td>..-.</td></tr>
-<tr><th>V</th><td>...-</td></tr>
-<tr><th>H</th><td>....</td></tr>
-<!-- <tr><th>0</th><td>-----</td></tr>
-<tr><th>9</th><td>----.</td></tr>
-<tr><th>_</th><td>---.-</td></tr>
-<tr><th>8</th><td>---..</td></tr>
-<tr><th>_</th><td>--.--</td></tr>
-<tr><th>_</th><td>--.-.</td></tr>
-<tr><th>_</th><td>--..-</td></tr>
-<tr><th>7</th><td>--...</td></tr>
-<tr><th>_</th><td>-.---</td></tr>
-<tr><th>_</th><td>-.--.</td></tr>
-<tr><th>_</th><td>-.-.-</td></tr>
-<tr><th>_</th><td>-.-..</td></tr>
-<tr><th>_</th><td>-..--</td></tr>
-<tr><th>_</th><td>-..-.</td></tr>
-<tr><th>_</th><td>-...-</td></tr>
-<tr><th>6</th><td>-....</td></tr>
-<tr><th>1</th><td>.----</td></tr>
-<tr><th>_</th><td>.---.</td></tr>
-<tr><th>_</th><td>.--.-</td></tr>
-<tr><th>_</th><td>.--..</td></tr>
-<tr><th>_</th><td>.-.--</td></tr>
-<tr><th>_</th><td>.-.-.</td></tr>
-<tr><th>_</th><td>.-..-</td></tr>
-<tr><th>_</th><td>.-...</td></tr>
-<tr><th>2</th><td>..---</td></tr>
-<tr><th>_</th><td>..--.</td></tr>
-<tr><th>_</th><td>..-.-</td></tr>
-<tr><th>_</th><td>..-..</td></tr>
-<tr><th>3</th><td>...--</td></tr>
-<tr><th>_</th><td>...-.</td></tr>
-<tr><th>4</th><td>....-</td></tr>
-<tr><th>5</th><td>.....</td></tr> -->
+	<tr><th>T</th><td>-</td></tr>
+	<tr><th>E</th><td>.</td></tr>
+	<tr><th>M</th><td>--</td></tr>
+	<tr><th>N</th><td>-.</td></tr>
+	<tr><th>A</th><td>.-</td></tr>
+	<tr><th>I</th><td>..</td></tr>
+	<tr><th>O</th><td>---</td></tr>
+	<tr><th>G</th><td>--.</td></tr>
+	<tr><th>K</th><td>-.-</td></tr>
+	<tr><th>D</th><td>-..</td></tr>
+	<tr><th>W</th><td>.--</td></tr>
+	<tr><th>R</th><td>.-.</td></tr>
+	<tr><th>U</th><td>..-</td></tr>
+	<tr><th>S</th><td>...</td></tr>
+	<tr><th>_</th><td>----</td></tr>
+	<tr><th>_</th><td>---.</td></tr>
+	<tr><th>Q</th><td>--.-</td></tr>
+	<tr><th>Z</th><td>--..</td></tr>
+	<tr><th>Y</th><td>-.--</td></tr>
+	<tr><th>C</th><td>-.-.</td></tr>
+	<tr><th>X</th><td>-..-</td></tr>
+	<tr><th>B</th><td>-...</td></tr>
+	<tr><th>J</th><td>.---</td></tr>
+	<tr><th>P</th><td>.--.</td></tr>
+	<tr><th>_</th><td>.-.-</td></tr>
+	<tr><th>L</th><td>.-..</td></tr>
+	<tr><th>_</th><td>..--</td></tr>
+	<tr><th>F</th><td>..-.</td></tr>
+	<tr><th>V</th><td>...-</td></tr>
+	<tr><th>H</th><td>....</td></tr>
 </table>
-
 </body>
 </html>

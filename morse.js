@@ -1,5 +1,3 @@
-
-
 (function($){
 	$.fn.shuffle = function() {
 		return this.each(function(){
@@ -14,8 +12,6 @@
 })(jQuery);
 
 $(function() {
-
-
 	$("nav div").click(function() {
  		$(".selected").removeClass("selected")
  		$(this).addClass("selected")
@@ -26,9 +22,6 @@ $(function() {
 	$("div[page='3']").click(function() {
 		$('#guess').focus()
 	})
-
-	
-
 
 	$("#showall").click(function() {
 		if ($(this).is(":checked")) {
@@ -46,7 +39,6 @@ $(function() {
 			})
 		}
 	}).click().click()
-
 
  	var encodex = "{", decodex = "{", str, result, i, j
 	$("#all tr").each(function() {
@@ -105,16 +97,6 @@ $(function() {
 		}
 	})
 
-	function bool(string){
-		string = string+""
-    		switch(string.toLowerCase().trim()){
-        		case "true": case "yes": case "1": return true;
-        		case "false": case "no": case "0": case null: return false;
-        		default: return Boolean(string);
-    		}
-	}
-
-
 	$(".play").click(function(e) {
 		$("#readout audio").eq(0).get(0).play()
 		i = 1
@@ -126,53 +108,52 @@ $(function() {
 	})
 	
 
-	$('.lenControl').each(function(a, b) {
-		$(b).prop('checked', bool(localStorage.getItem($(b).attr('id'))))
-	})
-	$(document).on('click', '.lenControl', function() {
-		$('.lenControl').each(function(a, b) {
-			localStorage.setItem($(b).attr('id'), bool($(b).is(':checked')))
-		})
-		$('#guess').focus()
-	})
 
-	j = 0
-	$('#shuffle').click(function() {
-		$('#all').shuffle()
-		$('#guess').keyup().focus()
-	}).click()
-	var lens, lett, code
+
+
+	function bool(string){
+		string = string+""
+    	switch(string.toLowerCase().trim()){
+        	case "true": case "yes": case "1": return true;
+        	case "false": case "no": case "0": case null: return false;
+        	default: return Boolean(string);
+    	}
+	}
+	var counts = [2, 4, 8, 12]
+	function total() {
+		return Array.from($('.lenControl').map(function(a, b) {
+			return $(b).is(':checked') ? counts[a] : 0
+		})).reduce(function(a, b) {
+			return a + b
+		})
+	}
+
+	var j = 0, lens, lett, code, title = document.title, score = 0
+
 	$("#flashcard").click(function() {
 		$('#guess').removeAttr('disabled')
 		$('#guess').focus()
 		$("#guess").val("").css("background-color", "rgb(255, 255, 255)")
-			
+		
 		lens = Array.from($('.lenControl').map(function(a, b) {
 			return $(b).is(':checked')
 		}))
 		lett = $("#all").find("th").eq(j).html()
 		code = $("#all").find("td").eq(j).html()
-		
+		if (j >= $("#all").find("th").length || !code) {
+			j = 0
+			score = 0
+			$('#shuffle').click()
+			return
+		}
+
 		if (!lens[code.length-1]) {
 			j++
-			if (j >= $("#all").find("th").length) {
-				j = 0
-			}
-			if($(this).html() === '_') {
-				$("#flashcard").click()
-			}
 			$("#flashcard").click()
 			return
 		}
-		
 		$(this).html($("#all").find("th").eq(j).html())
-
 		j++
-		if (j >= $("#all").find("th").length) {
-			j = 0
-			$('#shuffle').click()
-			score = 0
-		}
 		if($(this).html() === '_') {
 			$("#flashcard").click()
 		}
@@ -184,7 +165,7 @@ $(function() {
 	var dot = 190
 	var dash = 191
 	$("#guess").keydown(function(e) {
-		console.log(e.which)
+		// console.log(e.which)
 		e.preventDefault()
 		if (e.which === bs) {
 			$(this).val($(this).val().slice(0, -1))
@@ -195,39 +176,12 @@ $(function() {
 		if (e.which === dash) {
 			$(this).val($(this).val()+'-')
 		}
+		if (e.which === enter || e.which === space) {
+			$('#submit').click()
+		}
 	})
-	var score = 0
-	var title = document.title
 	$("#guess").keyup(function(e) {
 		e.preventDefault()
-		if (e.which === 13 || e.which === 32) {
-			if ($(this).css('background-color') === 'rgb(0, 128, 0)') {
-				$("#flashcard").click()
-				return
-			}
-			$('#guess').focus()
-		}
-		var guess = $(this).val(),
-			a = $("#flashcard").html(),
-			check = decodex[guess],
-			b = encodex[a]
-
-		$(this).css("background-color", "rgb(255, 255, 255)")
-
-		if (guess.length == b.length) {
-			if (check == a) {
-				$(this).css('background-color', 'rgb(0, 128, 0)')
-				score++
-			}
-			else {
-				$(this).css('background-color', 'rgb(255, 0, 0)')
-				score--
-			}
-			document.title = title + " (" + score + ")"
-			// setTimeout(function() {
-			// 	$("#flashcard").click()
-			// }, 1500)
-		}
 	})
 	$('#dot').click(function() {
 		$('#guess').val($('#guess').val()+'.')
@@ -237,6 +191,69 @@ $(function() {
 		$('#guess').val($('#guess').val()+'-')
 		$('#guess').keyup().focus()
 	})
+	$('#submit').click(function() {
+		var guess = $('#guess').val(),
+			a = $("#flashcard").html(),
+			check = decodex[guess],
+			b = encodex[a]
+
+		$('#guess').css("background-color", "rgb(255, 255, 255)")
+		if (check == a) {
+			$('#guess').css('background-color', 'rgb(0, 128, 0)')
+			score++
+		}
+		else {
+			$('#guess').css('background-color', 'rgb(255, 0, 0)')
+		}		setTimeout(function() {			if (score == total()) {
+				document.title = `${title} (${score}/${total()})`
+	
+				alert(`You win! ${score}/${total()}`)
+				$('#guess').html('')
+				$('#flashcard').html('Start')
+				$('#guess').attr('disabled', true)
+				$('#guess').focus()
+				$("#guess").val("").css("background-color", "rgb(255, 255, 255)")
+				score = 0
+				j = 0
+				$('#shuffle').click()
+	
+				document.title = `${title} (${score}/${total()})`
+			}
+			else { 				document.title = `${title} (${score}/${total()})`
+				$("#flashcard").click()
+				$('#guess').focus()
+			}
+		}, 1500)
+	})
+
+	$('.lenControl').each(function(a, b) {
+		$(b).prop('checked', bool(localStorage.getItem($(b).attr('id'))))
+	})
+	$(document).on('click', '.lenControl', function() {
+		$('.lenControl').each(function(a, b) {
+			localStorage.setItem($(b).attr('id'), bool($(b).is(':checked')))
+		})
+		$('#guess').focus()
+		document.title = title + " (" + score + "/" + total() + ")"
+		
+	})
+	$('#shuffle').click(function() {
+		$('#all').shuffle()
+		$('#guess').keyup().focus()
+	}).click()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	simple_chart_config = {
 		chart: {
@@ -337,7 +354,6 @@ $(function() {
 		}
 	};
 	var my_chart = new Treant(simple_chart_config);
-
 	function cmb(arr, n) {
 		var result = [];
 		for(var i = 1; i <= n; i++) {
@@ -346,13 +362,10 @@ $(function() {
 		return result;
 	}
 
-
 	$("a.sound").click(function(e) {
 		$(this).next('audio').get(0).play()
 	})
 	$("table tbody, div").disableSelection()
-
-
 
 	$(document).on('mouseenter', '.node', function() {
 		$(this).addClass('invert')
@@ -362,7 +375,6 @@ $(function() {
 		$(this).removeClass('invert')
 		$('.invert').removeClass('invert')
 	})
-
 
 	var cheat = $('#tables').clone()
 	cheat.attr('id', 'cheat')
