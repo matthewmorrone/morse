@@ -107,8 +107,8 @@ $(function() {
 		})
 	})
 	
-
-
+	var mode = false
+	$('#mode').click(function() {		mode = !mode		$('#dot, #dash').toggle()	})
 
 
 	function bool(string){
@@ -128,7 +128,7 @@ $(function() {
 		})
 	}
 
-	var j = 0, lens, lett, code, title = document.title, score = 0
+	var j = 0, lens, lett, code, title = document.title, score = 0, count = 0
 
 	$("#flashcard").click(function() {
 		$('#guess').removeAttr('disabled')
@@ -152,7 +152,7 @@ $(function() {
 			$("#flashcard").click()
 			return
 		}
-		$(this).html($("#all").find("th").eq(j).html())
+		$(this).html($("#all").find(mode ? 'td' : 'th').eq(j).html())
 		j++
 		if($(this).html() === '_') {
 			$("#flashcard").click()
@@ -164,24 +164,25 @@ $(function() {
 	var space = 32
 	var dot = 190
 	var dash = 191
-	$("#guess").keydown(function(e) {
-		// console.log(e.which)
-		e.preventDefault()
-		if (e.which === bs) {
-			$(this).val($(this).val().slice(0, -1))
-		}
-		if (e.which === dot) {
-			$(this).val($(this).val()+'.')
-		}
-		if (e.which === dash) {
-			$(this).val($(this).val()+'-')
-		}
-		if (e.which === enter || e.which === space) {
+	$("#guess").keydown(function(e) {		$(this).val($(this).val().toUpperCase())
+		if (mode === false) {
+			e.preventDefault()
+			if (e.which === bs) {
+				$(this).val($(this).val().slice(0, -1))
+			}
+			if (e.which === dot) {
+				$(this).val($(this).val()+'.')
+			}
+			if (e.which === dash) {
+				$(this).val($(this).val()+'-')
+			}
+		}		if (e.which === enter || e.which === space) {
 			$('#submit').click()
 		}
 	})
 	$("#guess").keyup(function(e) {
-		e.preventDefault()
+		e.preventDefault()		$(this).val($(this).val().toUpperCase())
+
 	})
 	$('#dot').click(function() {
 		$('#guess').val($('#guess').val()+'.')
@@ -194,8 +195,8 @@ $(function() {
 	$('#submit').click(function() {
 		var guess = $('#guess').val(),
 			a = $("#flashcard").html(),
-			check = decodex[guess],
-			b = encodex[a]
+			check = mode ? encodex[guess] : decodex[guess],
+			b = mode ? decodex[a] : encodex[a]
 
 		$('#guess').css("background-color", "rgb(255, 255, 255)")
 		if (check == a) {
@@ -204,22 +205,22 @@ $(function() {
 		}
 		else {
 			$('#guess').css('background-color', 'rgb(255, 0, 0)')
-		}		setTimeout(function() {			if (score == total()) {
-				document.title = `${title} (${score}/${total()})`
-	
-				alert(`You win! ${score}/${total()}`)
+		}		count++		setTimeout(function() {			if (count == total()) {
+				document.title = `${title} (${score}/${count}/${total()})`
+
+				alert(`You win! ${score}/${count}/${total()}`)
 				$('#guess').html('')
 				$('#flashcard').html('Start')
 				$('#guess').attr('disabled', true)
 				$('#guess').focus()
 				$("#guess").val("").css("background-color", "rgb(255, 255, 255)")
-				score = 0
-				j = 0
+				j = 0				score = 0
+				count = 0
 				$('#shuffle').click()
 	
-				document.title = `${title} (${score}/${total()})`
+				document.title = `${title} (${score}/${count}/${total()})`
 			}
-			else { 				document.title = `${title} (${score}/${total()})`
+			else { 				document.title = `${title} (${score}/${count}/${total()})`
 				$("#flashcard").click()
 				$('#guess').focus()
 			}
