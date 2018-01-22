@@ -194,21 +194,28 @@ $(function() {
 			score++
 		}
 		else {
-			$('#guess').css('background-color', 'rgb(255, 0, 0)')			wrongs.push([guess, a, check, b])			$('#wrongs').html(wrongs)
+			$('#guess').css('background-color', 'rgb(255, 0, 0)')			wrongs.push([a, b])			$('#wrongs').html(wrongs.join('<br>'))
 		}		count++		setTimeout(function() {			if (count == total()) {
 				document.title = `${title} (${score}/${count}/${total()})`
-
-				alert(`${score}/${count}/${total()}`)
-				$('#guess').html('')
+				swal({
+					title: `${score}/${count}/${total()}`,
+					text: wrongs.map(x => x.join('\t')).join('\t'),
+					icon: "success",
+					button: "Play Again",
+				})				$('#guess').html('')
 				$('#flashcard').html('Start')
 				$('#guess').attr('disabled', true)
 				$('#guess').focus()
 				$("#guess").val("").css("background-color", "rgb(255, 255, 255)")
-				j = 0				score = 0
-				count = 0				wrongs = []
+				j = 0
+				score = 0
+				count = 0
+				wrongs = []
+				$('#wrongs').html(wrongs)
 				$('#shuffle').click()
 	
 				document.title = `${title} (${score}/${count}/${total()})`
+
 			}
 			else { 				document.title = `${title} (${score}/${count}/${total()})`
 				$("#flashcard").click()
